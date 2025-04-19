@@ -19,7 +19,7 @@ interface CurrencySelectorProps {
 
 const CurrencySelector = ({ initialValue, onChange }: CurrencySelectorProps) => {
   const [selectedCurrency, setSelectedCurrency] = useState(initialValue || 'ETH');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState('0');
   const [usdValue, setUsdValue] = useState('0.00');
   
   // Convert currencies to array for easier mapping
@@ -82,6 +82,11 @@ const CurrencySelector = ({ initialValue, onChange }: CurrencySelectorProps) => 
     onChange(selectedCurrency, newAmount);
   };
   
+  // Set initial currency and amount when component mounts
+  useEffect(() => {
+    onChange(selectedCurrency, amount);
+  }, []);
+
   return (
     <Box>
       <Box sx={{ mb: 2 }}>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Container, 
@@ -9,7 +9,9 @@ import {
   Divider, 
   Button, 
   Chip,
-  LinearProgress
+  LinearProgress,
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { Grid } from '../../components/GridFix';
 import Navbar from '../../components/Navbar';
@@ -19,31 +21,96 @@ import DonorLeaderboard from '../../components/DonorLeaderboard';
 import Link from 'next/link';
 import { getCampaignLeaderboard } from '../../lib/donationService';
 
-export default function CampaignPage({ params }: { params: { id: string } }) {
-  // In a real app, this would fetch campaign data from an API
-  // For demo purposes, we'll use a mock campaign
-  const campaign = {
-    id: params.id,
-    title: "Blockchain-Based Supply Chain Tracking",
-    description: "We're building a decentralized platform that uses blockchain technology to provide end-to-end visibility in global supply chains.",
-    creator: "0x123abc...",
-    goalAmount: 50,
-    currency: "ETH",
-    currentAmount: 28.5,
-    backers: 42,
-    endDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
-    image: "https://images.unsplash.com/photo-1639744090758-c3d4fe323c84?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80",
-    category: "Infrastructure",
-    projectPurpose: "Our platform uses Ethereum for smart contracts that automatically execute and enforce agreements between suppliers, manufacturers, and retailers. The cryptocurrency is used for transaction settlement and incentivizing honest reporting of supply chain data."
+interface CampaignData {
+  id: string;
+  title: string;
+  description: string;
+  goal: number;
+  raised: number;
+  image?: string;
+  endDate?: Date;
+  category?: string;
+  user: { 
+    id: string;
+    name?: string;
   };
+  updates: Array<{
+    id: string;
+    title: string;
+    content: string;
+  }>;
+}
+
+export default function CampaignPage({ params }: { params: { id: string } }) {
+  const [campaign, setCampaign] = useState<CampaignData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchCampaign() {
+      try {
+        const response = await fetch(`/api/campaign/${params.id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch campaign');
+        }
+        const data = await response.json();
+        setCampaign(data);
+      } catch (err) {
+        console.error('Error fetching campaign:', err);
+        setError('Failed to load campaign. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCampaign();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Navbar />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </Box>
+    );
+  }
+
+  if (error || !campaign) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Navbar />
+        <Container sx={{ py: 6 }}>
+          <Alert severity="error">{error || 'Campaign not found'}</Alert>
+          <Button 
+            component={Link}
+            href="/explore"
+            variant="contained" 
+            sx={{ mt: 2 }}
+          >
+            Back to All Campaigns
+          </Button>
+        </Container>
+        <Footer />
+      </Box>
+    );
+  }
+  
+  // Find the cryptocurrency usage update
+  const cryptoUsagePlan = campaign.updates.find(update => 
+    update.title === 'Cryptocurrency Usage Plan'
+  )?.content || 'No cryptocurrency usage plan specified.';
   
   // Calculate funding progress
-  const progress = Math.min(Math.round((campaign.currentAmount / campaign.goalAmount) * 100), 100);
-  const daysLeft = Math.ceil((campaign.endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const progress = Math.min(Math.round((campaign.raised / campaign.goal) * 100), 100);
+  const daysLeft = campaign.endDate ? 
+    Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 
+    0;
   
-  // Hardcode campaign ID for demo purposes to match our mock data
-  const demoId = 'campaign-123456';
-  const leaderboardDonations = getCampaignLeaderboard(demoId);
+  // Get leaderboard data
+  const leaderboardDonations = getCampaignLeaderboard(campaign.id);
   
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -62,21 +129,40 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
             {/* Campaign details - left column */}
             <Box sx={{ flexBasis: { xs: '100%', md: '66.67%' } }}>
               <Paper sx={{ p: 0, mb: 4, overflow: 'hidden' }}>
-                <Box 
-                  component="img"
-                  src={campaign.image}
-                  alt={campaign.title}
-                  sx={{ 
-                    width: '100%',
-                    height: 'auto',
-                    maxHeight: '400px',
-                    objectFit: 'cover'
-                  }}
-                />
+                {campaign.image ? (
+                  <Box 
+                    component="img"
+                    src={campaign.image}
+                    alt={campaign.title}
+                    sx={{ 
+                      width: '100%',
+                      height: 'auto',
+                      maxHeight: '400px',
+                      objectFit: 'cover'
+                    }}
+                  />
+                ) : (
+                  <Box 
+                    sx={{ 
+                      width: '100%',
+                      height: '200px',
+                      backgroundColor: 'grey.200',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      No image available
+                    </Typography>
+                  </Box>
+                )}
                 
                 <Box sx={{ p: 4 }}>
                   <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Chip label={campaign.category} color="primary" size="small" />
+                    {campaign.category && (
+                      <Chip label={campaign.category} color="primary" size="small" />
+                    )}
                     <Typography variant="body2" color="text.secondary">
                       Campaign ID: {campaign.id}
                     </Typography>
@@ -98,7 +184,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     Cryptocurrency Usage
                   </Typography>
                   <Typography variant="body1" paragraph>
-                    {campaign.projectPurpose}
+                    {cryptoUsagePlan}
                   </Typography>
                   
                   <Divider sx={{ my: 3 }} />
@@ -110,13 +196,15 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">Created by</Typography>
                       <Typography variant="body1" gutterBottom>
-                        {campaign.creator}
+                        {campaign.user.name || campaign.user.id}
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">End Date</Typography>
                       <Typography variant="body1" gutterBottom>
-                        {campaign.endDate.toLocaleDateString()}
+                        {campaign.endDate 
+                          ? new Date(campaign.endDate).toLocaleDateString() 
+                          : 'No end date specified'}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -138,10 +226,10 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                 </Typography>
                 
                 <Typography variant="h4" color="primary" gutterBottom>
-                  {campaign.currentAmount} {campaign.currency}
+                  {campaign.raised} ETH
                 </Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                  of {campaign.goalAmount} {campaign.currency} goal
+                  of {campaign.goal} ETH goal
                 </Typography>
                 
                 <LinearProgress 
@@ -155,7 +243,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     {progress}% Funded
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {daysLeft} days left
+                    {daysLeft > 0 ? `${daysLeft} days left` : 'Campaign ended'}
                   </Typography>
                 </Box>
                 
@@ -166,7 +254,8 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     Backers
                   </Typography>
                   <Typography variant="body2" fontWeight="bold">
-                    {campaign.backers}
+                    {/* This would ideally come from the API */}
+                    {leaderboardDonations.length}
                   </Typography>
                 </Box>
               </Paper>

@@ -140,7 +140,7 @@ export default function CreateCampaign() {
     title: '',
     category: '',
     currency: 'ETH',
-    amount: '',
+    amount: '0',
     duration: '',
     shortDescription: '',
     detailedDescription: '',
@@ -244,7 +244,9 @@ export default function CreateCampaign() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleCurrencyChange = (currency: string, amount: string) => {
+  const handleCurrencyChange = (currency: string, newAmount: string) => {
+    // Ensure amount is never empty
+    const amount = newAmount && newAmount.trim() !== '' ? newAmount : '0';
     setFormData(prev => ({ ...prev, currency, amount }));
   };
   
