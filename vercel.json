@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": {
+        "skipLint": true,
+        "buildCommand": "npx prisma generate && npx next build --no-lint"
+      }
+    }
+  ],
+  "env": {
+    "NEXT_DISABLE_ESLINT": "1",
+    "SKIP_PREFLIGHT_CHECK": "true"
+  }
+} 
