@@ -1,31 +1,12 @@
-import NextAuth, { type NextAuthOptions, Session, User } from 'next-auth';
+import { type NextAuthOptions, Session, User } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '@/lib/prisma';
 import { JWT } from 'next-auth/jwt';
 import { Adapter } from 'next-auth/adapters';
 
-// Extend the built-in session and JWT types
-declare module "next-auth" {
-  interface Session {
-    accessToken?: string;
-    user: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    }
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    accessToken?: string;
-  }
-}
-
 // NextAuth configuration with Prisma database adapter
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     GoogleProvider({
@@ -90,8 +71,4 @@ const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: true,
-};
-
-// Export handlers for GET and POST
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST }; 
+}; 

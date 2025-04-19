@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { convertCurrency } from '@/lib/cryptoprocessing';
+import { convertCurrency } from '@/lib/cryptoprocessing/index';
 
 /**
  * CryptoProcessing callback endpoint
