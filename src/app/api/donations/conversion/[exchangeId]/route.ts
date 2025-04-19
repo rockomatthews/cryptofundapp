@@ -7,10 +7,10 @@ import { getExchangeStatus } from '@/lib/cryptoprocessing';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { exchangeId: string } }
+  { params }: { params: Promise<{ exchangeId: string }> }
 ) {
   try {
-    const { exchangeId } = params;
+    const { exchangeId } = await params;
     
     if (!exchangeId) {
       return NextResponse.json(
@@ -20,8 +20,8 @@ export async function GET(
     }
     
     // Find the conversion record in the database
-    const conversion = await prisma.currencyConversion.findUnique({
-      where: { exchangeId },
+    const conversion = await prisma.currencyConversion.findFirst({
+      where: { exchangeId: exchangeId },
       include: { donation: { include: { campaign: true } } },
     });
     
@@ -40,9 +40,10 @@ export async function GET(
       where: { id: conversion.id },
       data: {
         status: mapStatus(exchangeStatus.status),
-        fromAmount: exchangeStatus.fromAmount,
-        toAmount: exchangeStatus.toAmount,
-        txHash: exchangeStatus.transactionHash || conversion.txHash,
+        fromAmount: parseFloat(exchangeStatus.fromAmount),
+        toAmount: exchangeStatus.toAmount ? parseFloat(exchangeStatus.toAmount) : null,
+        // Use appropriate fields that exist in the model
+        // txHash: exchangeStatus.transactionHash || conversion.txHash,
       },
     });
     
@@ -51,8 +52,8 @@ export async function GET(
       await prisma.campaign.update({
         where: { id: conversion.donation.campaignId },
         data: {
-          raisedAmount: {
-            increment: parseFloat(exchangeStatus.toAmount),
+          raised: {
+            increment: exchangeStatus.toAmount ? parseFloat(exchangeStatus.toAmount) : 0,
           },
         },
       });
@@ -62,7 +63,8 @@ export async function GET(
       status: updatedConversion.status,
       fromAmount: updatedConversion.fromAmount,
       toAmount: updatedConversion.toAmount,
-      txHash: updatedConversion.txHash
+      // Don't include fields that don't exist in the model
+      // txHash: updatedConversion.txHash
     });
   } catch (error) {
     console.error('Error checking conversion status:', error);

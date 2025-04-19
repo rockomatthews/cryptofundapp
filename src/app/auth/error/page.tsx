@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
-import { Box, Container, Typography, Paper, Button, Alert } from '@mui/material';
+import React, { Suspense } from 'react';
+import { Box, Container, Typography, Paper, Button, Alert, CircularProgress } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
-export default function AuthError() {
+// Create an ErrorContent component that uses useSearchParams
+function ErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
   
@@ -35,6 +36,67 @@ export default function AuthError() {
   };
 
   return (
+    <Paper
+      elevation={3}
+      sx={{
+        p: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <Typography component="h1" variant="h4" color="error" gutterBottom>
+        Authentication Error
+      </Typography>
+      
+      <Alert severity="error" sx={{ width: '100%', my: 2 }}>
+        {getErrorMessage(error)}
+      </Alert>
+      
+      <Typography variant="body1" sx={{ mb: 4, textAlign: 'center' }}>
+        You can try signing in again or contact support if the problem persists.
+      </Typography>
+      
+      <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+        <Button 
+          component={Link} 
+          href="/auth/signin" 
+          variant="contained" 
+          color="primary"
+        >
+          Try Again
+        </Button>
+        <Button 
+          component={Link} 
+          href="/" 
+          variant="outlined"
+        >
+          Back to Home
+        </Button>
+      </Box>
+    </Paper>
+  );
+}
+
+// Fallback component during suspense
+function LoadingFallback() {
+  return (
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        width: '100%', 
+        py: 8 
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  );
+}
+
+export default function AuthError() {
+  return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
       <Container 
@@ -48,45 +110,9 @@ export default function AuthError() {
           py: 8
         }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Typography component="h1" variant="h4" color="error" gutterBottom>
-            Authentication Error
-          </Typography>
-          
-          <Alert severity="error" sx={{ width: '100%', my: 2 }}>
-            {getErrorMessage(error)}
-          </Alert>
-          
-          <Typography variant="body1" sx={{ mb: 4, textAlign: 'center' }}>
-            You can try signing in again or contact support if the problem persists.
-          </Typography>
-          
-          <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-            <Button 
-              component={Link} 
-              href="/auth/signin" 
-              variant="contained" 
-              color="primary"
-            >
-              Try Again
-            </Button>
-            <Button 
-              component={Link} 
-              href="/" 
-              variant="outlined"
-            >
-              Back to Home
-            </Button>
-          </Box>
-        </Paper>
+        <Suspense fallback={<LoadingFallback />}>
+          <ErrorContent />
+        </Suspense>
       </Container>
       <Footer />
     </Box>

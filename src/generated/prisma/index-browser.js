@@ -167,6 +167,8 @@ exports.Prisma.CampaignScalarFieldEnum = {
   endDate: 'endDate',
   isActive: 'isActive',
   category: 'category',
+  targetCurrency: 'targetCurrency',
+  creatorWalletAddress: 'creatorWalletAddress',
   userId: 'userId'
 };
 
@@ -218,6 +220,22 @@ exports.Prisma.CampaignPayoutScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CurrencyConversionScalarFieldEnum = {
+  id: 'id',
+  donationId: 'donationId',
+  campaignId: 'campaignId',
+  fromCurrency: 'fromCurrency',
+  toCurrency: 'toCurrency',
+  fromAmount: 'fromAmount',
+  toAmount: 'toAmount',
+  exchangeId: 'exchangeId',
+  status: 'status',
+  estimatedCompletionTime: 'estimatedCompletionTime',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -243,7 +261,8 @@ exports.Prisma.ModelName = {
   Donation: 'Donation',
   Wallet: 'Wallet',
   CampaignUpdate: 'CampaignUpdate',
-  CampaignPayout: 'CampaignPayout'
+  CampaignPayout: 'CampaignPayout',
+  CurrencyConversion: 'CurrencyConversion'
 };
 
 /**

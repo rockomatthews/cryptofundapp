@@ -58,6 +58,11 @@ export type CampaignUpdate = $Result.DefaultSelection<Prisma.$CampaignUpdatePayl
  * 
  */
 export type CampaignPayout = $Result.DefaultSelection<Prisma.$CampaignPayoutPayload>
+/**
+ * Model CurrencyConversion
+ * 
+ */
+export type CurrencyConversion = $Result.DefaultSelection<Prisma.$CurrencyConversionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -273,6 +278,16 @@ export class PrismaClient<
     * ```
     */
   get campaignPayout(): Prisma.CampaignPayoutDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.currencyConversion`: Exposes CRUD operations for the **CurrencyConversion** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CurrencyConversions
+    * const currencyConversions = await prisma.currencyConversion.findMany()
+    * ```
+    */
+  get currencyConversion(): Prisma.CurrencyConversionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -721,7 +736,8 @@ export namespace Prisma {
     Donation: 'Donation',
     Wallet: 'Wallet',
     CampaignUpdate: 'CampaignUpdate',
-    CampaignPayout: 'CampaignPayout'
+    CampaignPayout: 'CampaignPayout',
+    CurrencyConversion: 'CurrencyConversion'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -740,7 +756,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "account" | "session" | "user" | "verificationToken" | "campaign" | "donation" | "wallet" | "campaignUpdate" | "campaignPayout"
+      modelProps: "account" | "session" | "user" | "verificationToken" | "campaign" | "donation" | "wallet" | "campaignUpdate" | "campaignPayout" | "currencyConversion"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1410,6 +1426,80 @@ export namespace Prisma {
           }
         }
       }
+      CurrencyConversion: {
+        payload: Prisma.$CurrencyConversionPayload<ExtArgs>
+        fields: Prisma.CurrencyConversionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CurrencyConversionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CurrencyConversionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>
+          }
+          findFirst: {
+            args: Prisma.CurrencyConversionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CurrencyConversionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>
+          }
+          findMany: {
+            args: Prisma.CurrencyConversionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>[]
+          }
+          create: {
+            args: Prisma.CurrencyConversionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>
+          }
+          createMany: {
+            args: Prisma.CurrencyConversionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CurrencyConversionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>[]
+          }
+          delete: {
+            args: Prisma.CurrencyConversionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>
+          }
+          update: {
+            args: Prisma.CurrencyConversionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>
+          }
+          deleteMany: {
+            args: Prisma.CurrencyConversionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CurrencyConversionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CurrencyConversionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>[]
+          }
+          upsert: {
+            args: Prisma.CurrencyConversionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrencyConversionPayload>
+          }
+          aggregate: {
+            args: Prisma.CurrencyConversionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCurrencyConversion>
+          }
+          groupBy: {
+            args: Prisma.CurrencyConversionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CurrencyConversionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CurrencyConversionCountArgs<ExtArgs>
+            result: $Utils.Optional<CurrencyConversionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1503,6 +1593,7 @@ export namespace Prisma {
     wallet?: WalletOmit
     campaignUpdate?: CampaignUpdateOmit
     campaignPayout?: CampaignPayoutOmit
+    currencyConversion?: CurrencyConversionOmit
   }
 
   /* Types for Logging */
@@ -1667,12 +1758,14 @@ export namespace Prisma {
     donations: number
     updates: number
     payouts: number
+    currencyConversions: number
   }
 
   export type CampaignCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     donations?: boolean | CampaignCountOutputTypeCountDonationsArgs
     updates?: boolean | CampaignCountOutputTypeCountUpdatesArgs
     payouts?: boolean | CampaignCountOutputTypeCountPayoutsArgs
+    currencyConversions?: boolean | CampaignCountOutputTypeCountCurrencyConversionsArgs
   }
 
   // Custom InputTypes
@@ -1705,6 +1798,44 @@ export namespace Prisma {
    */
   export type CampaignCountOutputTypeCountPayoutsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CampaignPayoutWhereInput
+  }
+
+  /**
+   * CampaignCountOutputType without action
+   */
+  export type CampaignCountOutputTypeCountCurrencyConversionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CurrencyConversionWhereInput
+  }
+
+
+  /**
+   * Count Type DonationCountOutputType
+   */
+
+  export type DonationCountOutputType = {
+    currencyConversions: number
+  }
+
+  export type DonationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    currencyConversions?: boolean | DonationCountOutputTypeCountCurrencyConversionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DonationCountOutputType without action
+   */
+  export type DonationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DonationCountOutputType
+     */
+    select?: DonationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DonationCountOutputType without action
+   */
+  export type DonationCountOutputTypeCountCurrencyConversionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CurrencyConversionWhereInput
   }
 
 
@@ -6182,6 +6313,8 @@ export namespace Prisma {
     endDate: Date | null
     isActive: boolean | null
     category: string | null
+    targetCurrency: string | null
+    creatorWalletAddress: string | null
     userId: string | null
   }
 
@@ -6197,6 +6330,8 @@ export namespace Prisma {
     endDate: Date | null
     isActive: boolean | null
     category: string | null
+    targetCurrency: string | null
+    creatorWalletAddress: string | null
     userId: string | null
   }
 
@@ -6212,6 +6347,8 @@ export namespace Prisma {
     endDate: number
     isActive: number
     category: number
+    targetCurrency: number
+    creatorWalletAddress: number
     userId: number
     _all: number
   }
@@ -6239,6 +6376,8 @@ export namespace Prisma {
     endDate?: true
     isActive?: true
     category?: true
+    targetCurrency?: true
+    creatorWalletAddress?: true
     userId?: true
   }
 
@@ -6254,6 +6393,8 @@ export namespace Prisma {
     endDate?: true
     isActive?: true
     category?: true
+    targetCurrency?: true
+    creatorWalletAddress?: true
     userId?: true
   }
 
@@ -6269,6 +6410,8 @@ export namespace Prisma {
     endDate?: true
     isActive?: true
     category?: true
+    targetCurrency?: true
+    creatorWalletAddress?: true
     userId?: true
     _all?: true
   }
@@ -6371,6 +6514,8 @@ export namespace Prisma {
     endDate: Date | null
     isActive: boolean
     category: string | null
+    targetCurrency: string
+    creatorWalletAddress: string | null
     userId: string
     _count: CampaignCountAggregateOutputType | null
     _avg: CampaignAvgAggregateOutputType | null
@@ -6405,11 +6550,14 @@ export namespace Prisma {
     endDate?: boolean
     isActive?: boolean
     category?: boolean
+    targetCurrency?: boolean
+    creatorWalletAddress?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     donations?: boolean | Campaign$donationsArgs<ExtArgs>
     updates?: boolean | Campaign$updatesArgs<ExtArgs>
     payouts?: boolean | Campaign$payoutsArgs<ExtArgs>
+    currencyConversions?: boolean | Campaign$currencyConversionsArgs<ExtArgs>
     _count?: boolean | CampaignCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["campaign"]>
 
@@ -6425,6 +6573,8 @@ export namespace Prisma {
     endDate?: boolean
     isActive?: boolean
     category?: boolean
+    targetCurrency?: boolean
+    creatorWalletAddress?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["campaign"]>
@@ -6441,6 +6591,8 @@ export namespace Prisma {
     endDate?: boolean
     isActive?: boolean
     category?: boolean
+    targetCurrency?: boolean
+    creatorWalletAddress?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["campaign"]>
@@ -6457,15 +6609,18 @@ export namespace Prisma {
     endDate?: boolean
     isActive?: boolean
     category?: boolean
+    targetCurrency?: boolean
+    creatorWalletAddress?: boolean
     userId?: boolean
   }
 
-  export type CampaignOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "goal" | "raised" | "image" | "createdAt" | "updatedAt" | "endDate" | "isActive" | "category" | "userId", ExtArgs["result"]["campaign"]>
+  export type CampaignOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "goal" | "raised" | "image" | "createdAt" | "updatedAt" | "endDate" | "isActive" | "category" | "targetCurrency" | "creatorWalletAddress" | "userId", ExtArgs["result"]["campaign"]>
   export type CampaignInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     donations?: boolean | Campaign$donationsArgs<ExtArgs>
     updates?: boolean | Campaign$updatesArgs<ExtArgs>
     payouts?: boolean | Campaign$payoutsArgs<ExtArgs>
+    currencyConversions?: boolean | Campaign$currencyConversionsArgs<ExtArgs>
     _count?: boolean | CampaignCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CampaignIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6482,6 +6637,7 @@ export namespace Prisma {
       donations: Prisma.$DonationPayload<ExtArgs>[]
       updates: Prisma.$CampaignUpdatePayload<ExtArgs>[]
       payouts: Prisma.$CampaignPayoutPayload<ExtArgs>[]
+      currencyConversions: Prisma.$CurrencyConversionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6495,6 +6651,8 @@ export namespace Prisma {
       endDate: Date | null
       isActive: boolean
       category: string | null
+      targetCurrency: string
+      creatorWalletAddress: string | null
       userId: string
     }, ExtArgs["result"]["campaign"]>
     composites: {}
@@ -6894,6 +7052,7 @@ export namespace Prisma {
     donations<T extends Campaign$donationsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$donationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DonationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     updates<T extends Campaign$updatesArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$updatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignUpdatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payouts<T extends Campaign$payoutsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$payoutsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CampaignPayoutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    currencyConversions<T extends Campaign$currencyConversionsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$currencyConversionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6934,6 +7093,8 @@ export namespace Prisma {
     readonly endDate: FieldRef<"Campaign", 'DateTime'>
     readonly isActive: FieldRef<"Campaign", 'Boolean'>
     readonly category: FieldRef<"Campaign", 'String'>
+    readonly targetCurrency: FieldRef<"Campaign", 'String'>
+    readonly creatorWalletAddress: FieldRef<"Campaign", 'String'>
     readonly userId: FieldRef<"Campaign", 'String'>
   }
     
@@ -7403,6 +7564,30 @@ export namespace Prisma {
   }
 
   /**
+   * Campaign.currencyConversions
+   */
+  export type Campaign$currencyConversionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    where?: CurrencyConversionWhereInput
+    orderBy?: CurrencyConversionOrderByWithRelationInput | CurrencyConversionOrderByWithRelationInput[]
+    cursor?: CurrencyConversionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CurrencyConversionScalarFieldEnum | CurrencyConversionScalarFieldEnum[]
+  }
+
+  /**
    * Campaign without action
    */
   export type CampaignDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7722,6 +7907,8 @@ export namespace Prisma {
     wallet?: boolean | Donation$walletArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
     campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    currencyConversions?: boolean | Donation$currencyConversionsArgs<ExtArgs>
+    _count?: boolean | DonationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["donation"]>
 
   export type DonationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7795,6 +7982,8 @@ export namespace Prisma {
     wallet?: boolean | Donation$walletArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
     campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+    currencyConversions?: boolean | Donation$currencyConversionsArgs<ExtArgs>
+    _count?: boolean | DonationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DonationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     wallet?: boolean | Donation$walletArgs<ExtArgs>
@@ -7813,6 +8002,7 @@ export namespace Prisma {
       wallet: Prisma.$WalletPayload<ExtArgs> | null
       user: Prisma.$UserPayload<ExtArgs>
       campaign: Prisma.$CampaignPayload<ExtArgs>
+      currencyConversions: Prisma.$CurrencyConversionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8229,6 +8419,7 @@ export namespace Prisma {
     wallet<T extends Donation$walletArgs<ExtArgs> = {}>(args?: Subset<T, Donation$walletArgs<ExtArgs>>): Prisma__WalletClient<$Result.GetResult<Prisma.$WalletPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     campaign<T extends CampaignDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CampaignDefaultArgs<ExtArgs>>): Prisma__CampaignClient<$Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    currencyConversions<T extends Donation$currencyConversionsArgs<ExtArgs> = {}>(args?: Subset<T, Donation$currencyConversionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8687,6 +8878,30 @@ export namespace Prisma {
      */
     include?: WalletInclude<ExtArgs> | null
     where?: WalletWhereInput
+  }
+
+  /**
+   * Donation.currencyConversions
+   */
+  export type Donation$currencyConversionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    where?: CurrencyConversionWhereInput
+    orderBy?: CurrencyConversionOrderByWithRelationInput | CurrencyConversionOrderByWithRelationInput[]
+    cursor?: CurrencyConversionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CurrencyConversionScalarFieldEnum | CurrencyConversionScalarFieldEnum[]
   }
 
   /**
@@ -11999,6 +12214,1214 @@ export namespace Prisma {
 
 
   /**
+   * Model CurrencyConversion
+   */
+
+  export type AggregateCurrencyConversion = {
+    _count: CurrencyConversionCountAggregateOutputType | null
+    _avg: CurrencyConversionAvgAggregateOutputType | null
+    _sum: CurrencyConversionSumAggregateOutputType | null
+    _min: CurrencyConversionMinAggregateOutputType | null
+    _max: CurrencyConversionMaxAggregateOutputType | null
+  }
+
+  export type CurrencyConversionAvgAggregateOutputType = {
+    fromAmount: number | null
+    toAmount: number | null
+  }
+
+  export type CurrencyConversionSumAggregateOutputType = {
+    fromAmount: number | null
+    toAmount: number | null
+  }
+
+  export type CurrencyConversionMinAggregateOutputType = {
+    id: string | null
+    donationId: string | null
+    campaignId: string | null
+    fromCurrency: string | null
+    toCurrency: string | null
+    fromAmount: number | null
+    toAmount: number | null
+    exchangeId: string | null
+    status: string | null
+    estimatedCompletionTime: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CurrencyConversionMaxAggregateOutputType = {
+    id: string | null
+    donationId: string | null
+    campaignId: string | null
+    fromCurrency: string | null
+    toCurrency: string | null
+    fromAmount: number | null
+    toAmount: number | null
+    exchangeId: string | null
+    status: string | null
+    estimatedCompletionTime: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CurrencyConversionCountAggregateOutputType = {
+    id: number
+    donationId: number
+    campaignId: number
+    fromCurrency: number
+    toCurrency: number
+    fromAmount: number
+    toAmount: number
+    exchangeId: number
+    status: number
+    estimatedCompletionTime: number
+    completedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CurrencyConversionAvgAggregateInputType = {
+    fromAmount?: true
+    toAmount?: true
+  }
+
+  export type CurrencyConversionSumAggregateInputType = {
+    fromAmount?: true
+    toAmount?: true
+  }
+
+  export type CurrencyConversionMinAggregateInputType = {
+    id?: true
+    donationId?: true
+    campaignId?: true
+    fromCurrency?: true
+    toCurrency?: true
+    fromAmount?: true
+    toAmount?: true
+    exchangeId?: true
+    status?: true
+    estimatedCompletionTime?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CurrencyConversionMaxAggregateInputType = {
+    id?: true
+    donationId?: true
+    campaignId?: true
+    fromCurrency?: true
+    toCurrency?: true
+    fromAmount?: true
+    toAmount?: true
+    exchangeId?: true
+    status?: true
+    estimatedCompletionTime?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CurrencyConversionCountAggregateInputType = {
+    id?: true
+    donationId?: true
+    campaignId?: true
+    fromCurrency?: true
+    toCurrency?: true
+    fromAmount?: true
+    toAmount?: true
+    exchangeId?: true
+    status?: true
+    estimatedCompletionTime?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CurrencyConversionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CurrencyConversion to aggregate.
+     */
+    where?: CurrencyConversionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CurrencyConversions to fetch.
+     */
+    orderBy?: CurrencyConversionOrderByWithRelationInput | CurrencyConversionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CurrencyConversionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CurrencyConversions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CurrencyConversions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CurrencyConversions
+    **/
+    _count?: true | CurrencyConversionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CurrencyConversionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CurrencyConversionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CurrencyConversionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CurrencyConversionMaxAggregateInputType
+  }
+
+  export type GetCurrencyConversionAggregateType<T extends CurrencyConversionAggregateArgs> = {
+        [P in keyof T & keyof AggregateCurrencyConversion]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCurrencyConversion[P]>
+      : GetScalarType<T[P], AggregateCurrencyConversion[P]>
+  }
+
+
+
+
+  export type CurrencyConversionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CurrencyConversionWhereInput
+    orderBy?: CurrencyConversionOrderByWithAggregationInput | CurrencyConversionOrderByWithAggregationInput[]
+    by: CurrencyConversionScalarFieldEnum[] | CurrencyConversionScalarFieldEnum
+    having?: CurrencyConversionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CurrencyConversionCountAggregateInputType | true
+    _avg?: CurrencyConversionAvgAggregateInputType
+    _sum?: CurrencyConversionSumAggregateInputType
+    _min?: CurrencyConversionMinAggregateInputType
+    _max?: CurrencyConversionMaxAggregateInputType
+  }
+
+  export type CurrencyConversionGroupByOutputType = {
+    id: string
+    donationId: string
+    campaignId: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount: number | null
+    exchangeId: string
+    status: string
+    estimatedCompletionTime: Date | null
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: CurrencyConversionCountAggregateOutputType | null
+    _avg: CurrencyConversionAvgAggregateOutputType | null
+    _sum: CurrencyConversionSumAggregateOutputType | null
+    _min: CurrencyConversionMinAggregateOutputType | null
+    _max: CurrencyConversionMaxAggregateOutputType | null
+  }
+
+  type GetCurrencyConversionGroupByPayload<T extends CurrencyConversionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CurrencyConversionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CurrencyConversionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CurrencyConversionGroupByOutputType[P]>
+            : GetScalarType<T[P], CurrencyConversionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CurrencyConversionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    donationId?: boolean
+    campaignId?: boolean
+    fromCurrency?: boolean
+    toCurrency?: boolean
+    fromAmount?: boolean
+    toAmount?: boolean
+    exchangeId?: boolean
+    status?: boolean
+    estimatedCompletionTime?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    donation?: boolean | DonationDefaultArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["currencyConversion"]>
+
+  export type CurrencyConversionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    donationId?: boolean
+    campaignId?: boolean
+    fromCurrency?: boolean
+    toCurrency?: boolean
+    fromAmount?: boolean
+    toAmount?: boolean
+    exchangeId?: boolean
+    status?: boolean
+    estimatedCompletionTime?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    donation?: boolean | DonationDefaultArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["currencyConversion"]>
+
+  export type CurrencyConversionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    donationId?: boolean
+    campaignId?: boolean
+    fromCurrency?: boolean
+    toCurrency?: boolean
+    fromAmount?: boolean
+    toAmount?: boolean
+    exchangeId?: boolean
+    status?: boolean
+    estimatedCompletionTime?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    donation?: boolean | DonationDefaultArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["currencyConversion"]>
+
+  export type CurrencyConversionSelectScalar = {
+    id?: boolean
+    donationId?: boolean
+    campaignId?: boolean
+    fromCurrency?: boolean
+    toCurrency?: boolean
+    fromAmount?: boolean
+    toAmount?: boolean
+    exchangeId?: boolean
+    status?: boolean
+    estimatedCompletionTime?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CurrencyConversionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "donationId" | "campaignId" | "fromCurrency" | "toCurrency" | "fromAmount" | "toAmount" | "exchangeId" | "status" | "estimatedCompletionTime" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["currencyConversion"]>
+  export type CurrencyConversionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    donation?: boolean | DonationDefaultArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+  }
+  export type CurrencyConversionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    donation?: boolean | DonationDefaultArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+  }
+  export type CurrencyConversionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    donation?: boolean | DonationDefaultArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
+  }
+
+  export type $CurrencyConversionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CurrencyConversion"
+    objects: {
+      donation: Prisma.$DonationPayload<ExtArgs>
+      campaign: Prisma.$CampaignPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      donationId: string
+      campaignId: string
+      fromCurrency: string
+      toCurrency: string
+      fromAmount: number
+      toAmount: number | null
+      exchangeId: string
+      status: string
+      estimatedCompletionTime: Date | null
+      completedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["currencyConversion"]>
+    composites: {}
+  }
+
+  type CurrencyConversionGetPayload<S extends boolean | null | undefined | CurrencyConversionDefaultArgs> = $Result.GetResult<Prisma.$CurrencyConversionPayload, S>
+
+  type CurrencyConversionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CurrencyConversionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CurrencyConversionCountAggregateInputType | true
+    }
+
+  export interface CurrencyConversionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CurrencyConversion'], meta: { name: 'CurrencyConversion' } }
+    /**
+     * Find zero or one CurrencyConversion that matches the filter.
+     * @param {CurrencyConversionFindUniqueArgs} args - Arguments to find a CurrencyConversion
+     * @example
+     * // Get one CurrencyConversion
+     * const currencyConversion = await prisma.currencyConversion.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CurrencyConversionFindUniqueArgs>(args: SelectSubset<T, CurrencyConversionFindUniqueArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CurrencyConversion that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CurrencyConversionFindUniqueOrThrowArgs} args - Arguments to find a CurrencyConversion
+     * @example
+     * // Get one CurrencyConversion
+     * const currencyConversion = await prisma.currencyConversion.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CurrencyConversionFindUniqueOrThrowArgs>(args: SelectSubset<T, CurrencyConversionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CurrencyConversion that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrencyConversionFindFirstArgs} args - Arguments to find a CurrencyConversion
+     * @example
+     * // Get one CurrencyConversion
+     * const currencyConversion = await prisma.currencyConversion.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CurrencyConversionFindFirstArgs>(args?: SelectSubset<T, CurrencyConversionFindFirstArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CurrencyConversion that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrencyConversionFindFirstOrThrowArgs} args - Arguments to find a CurrencyConversion
+     * @example
+     * // Get one CurrencyConversion
+     * const currencyConversion = await prisma.currencyConversion.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CurrencyConversionFindFirstOrThrowArgs>(args?: SelectSubset<T, CurrencyConversionFindFirstOrThrowArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CurrencyConversions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrencyConversionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CurrencyConversions
+     * const currencyConversions = await prisma.currencyConversion.findMany()
+     * 
+     * // Get first 10 CurrencyConversions
+     * const currencyConversions = await prisma.currencyConversion.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const currencyConversionWithIdOnly = await prisma.currencyConversion.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CurrencyConversionFindManyArgs>(args?: SelectSubset<T, CurrencyConversionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CurrencyConversion.
+     * @param {CurrencyConversionCreateArgs} args - Arguments to create a CurrencyConversion.
+     * @example
+     * // Create one CurrencyConversion
+     * const CurrencyConversion = await prisma.currencyConversion.create({
+     *   data: {
+     *     // ... data to create a CurrencyConversion
+     *   }
+     * })
+     * 
+     */
+    create<T extends CurrencyConversionCreateArgs>(args: SelectSubset<T, CurrencyConversionCreateArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CurrencyConversions.
+     * @param {CurrencyConversionCreateManyArgs} args - Arguments to create many CurrencyConversions.
+     * @example
+     * // Create many CurrencyConversions
+     * const currencyConversion = await prisma.currencyConversion.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CurrencyConversionCreateManyArgs>(args?: SelectSubset<T, CurrencyConversionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CurrencyConversions and returns the data saved in the database.
+     * @param {CurrencyConversionCreateManyAndReturnArgs} args - Arguments to create many CurrencyConversions.
+     * @example
+     * // Create many CurrencyConversions
+     * const currencyConversion = await prisma.currencyConversion.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CurrencyConversions and only return the `id`
+     * const currencyConversionWithIdOnly = await prisma.currencyConversion.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CurrencyConversionCreateManyAndReturnArgs>(args?: SelectSubset<T, CurrencyConversionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CurrencyConversion.
+     * @param {CurrencyConversionDeleteArgs} args - Arguments to delete one CurrencyConversion.
+     * @example
+     * // Delete one CurrencyConversion
+     * const CurrencyConversion = await prisma.currencyConversion.delete({
+     *   where: {
+     *     // ... filter to delete one CurrencyConversion
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CurrencyConversionDeleteArgs>(args: SelectSubset<T, CurrencyConversionDeleteArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CurrencyConversion.
+     * @param {CurrencyConversionUpdateArgs} args - Arguments to update one CurrencyConversion.
+     * @example
+     * // Update one CurrencyConversion
+     * const currencyConversion = await prisma.currencyConversion.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CurrencyConversionUpdateArgs>(args: SelectSubset<T, CurrencyConversionUpdateArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CurrencyConversions.
+     * @param {CurrencyConversionDeleteManyArgs} args - Arguments to filter CurrencyConversions to delete.
+     * @example
+     * // Delete a few CurrencyConversions
+     * const { count } = await prisma.currencyConversion.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CurrencyConversionDeleteManyArgs>(args?: SelectSubset<T, CurrencyConversionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CurrencyConversions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrencyConversionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CurrencyConversions
+     * const currencyConversion = await prisma.currencyConversion.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CurrencyConversionUpdateManyArgs>(args: SelectSubset<T, CurrencyConversionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CurrencyConversions and returns the data updated in the database.
+     * @param {CurrencyConversionUpdateManyAndReturnArgs} args - Arguments to update many CurrencyConversions.
+     * @example
+     * // Update many CurrencyConversions
+     * const currencyConversion = await prisma.currencyConversion.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CurrencyConversions and only return the `id`
+     * const currencyConversionWithIdOnly = await prisma.currencyConversion.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CurrencyConversionUpdateManyAndReturnArgs>(args: SelectSubset<T, CurrencyConversionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CurrencyConversion.
+     * @param {CurrencyConversionUpsertArgs} args - Arguments to update or create a CurrencyConversion.
+     * @example
+     * // Update or create a CurrencyConversion
+     * const currencyConversion = await prisma.currencyConversion.upsert({
+     *   create: {
+     *     // ... data to create a CurrencyConversion
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CurrencyConversion we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CurrencyConversionUpsertArgs>(args: SelectSubset<T, CurrencyConversionUpsertArgs<ExtArgs>>): Prisma__CurrencyConversionClient<$Result.GetResult<Prisma.$CurrencyConversionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CurrencyConversions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrencyConversionCountArgs} args - Arguments to filter CurrencyConversions to count.
+     * @example
+     * // Count the number of CurrencyConversions
+     * const count = await prisma.currencyConversion.count({
+     *   where: {
+     *     // ... the filter for the CurrencyConversions we want to count
+     *   }
+     * })
+    **/
+    count<T extends CurrencyConversionCountArgs>(
+      args?: Subset<T, CurrencyConversionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CurrencyConversionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CurrencyConversion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrencyConversionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CurrencyConversionAggregateArgs>(args: Subset<T, CurrencyConversionAggregateArgs>): Prisma.PrismaPromise<GetCurrencyConversionAggregateType<T>>
+
+    /**
+     * Group by CurrencyConversion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrencyConversionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CurrencyConversionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CurrencyConversionGroupByArgs['orderBy'] }
+        : { orderBy?: CurrencyConversionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CurrencyConversionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCurrencyConversionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CurrencyConversion model
+   */
+  readonly fields: CurrencyConversionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CurrencyConversion.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CurrencyConversionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    donation<T extends DonationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DonationDefaultArgs<ExtArgs>>): Prisma__DonationClient<$Result.GetResult<Prisma.$DonationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    campaign<T extends CampaignDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CampaignDefaultArgs<ExtArgs>>): Prisma__CampaignClient<$Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CurrencyConversion model
+   */
+  interface CurrencyConversionFieldRefs {
+    readonly id: FieldRef<"CurrencyConversion", 'String'>
+    readonly donationId: FieldRef<"CurrencyConversion", 'String'>
+    readonly campaignId: FieldRef<"CurrencyConversion", 'String'>
+    readonly fromCurrency: FieldRef<"CurrencyConversion", 'String'>
+    readonly toCurrency: FieldRef<"CurrencyConversion", 'String'>
+    readonly fromAmount: FieldRef<"CurrencyConversion", 'Float'>
+    readonly toAmount: FieldRef<"CurrencyConversion", 'Float'>
+    readonly exchangeId: FieldRef<"CurrencyConversion", 'String'>
+    readonly status: FieldRef<"CurrencyConversion", 'String'>
+    readonly estimatedCompletionTime: FieldRef<"CurrencyConversion", 'DateTime'>
+    readonly completedAt: FieldRef<"CurrencyConversion", 'DateTime'>
+    readonly createdAt: FieldRef<"CurrencyConversion", 'DateTime'>
+    readonly updatedAt: FieldRef<"CurrencyConversion", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CurrencyConversion findUnique
+   */
+  export type CurrencyConversionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * Filter, which CurrencyConversion to fetch.
+     */
+    where: CurrencyConversionWhereUniqueInput
+  }
+
+  /**
+   * CurrencyConversion findUniqueOrThrow
+   */
+  export type CurrencyConversionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * Filter, which CurrencyConversion to fetch.
+     */
+    where: CurrencyConversionWhereUniqueInput
+  }
+
+  /**
+   * CurrencyConversion findFirst
+   */
+  export type CurrencyConversionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * Filter, which CurrencyConversion to fetch.
+     */
+    where?: CurrencyConversionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CurrencyConversions to fetch.
+     */
+    orderBy?: CurrencyConversionOrderByWithRelationInput | CurrencyConversionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CurrencyConversions.
+     */
+    cursor?: CurrencyConversionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CurrencyConversions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CurrencyConversions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CurrencyConversions.
+     */
+    distinct?: CurrencyConversionScalarFieldEnum | CurrencyConversionScalarFieldEnum[]
+  }
+
+  /**
+   * CurrencyConversion findFirstOrThrow
+   */
+  export type CurrencyConversionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * Filter, which CurrencyConversion to fetch.
+     */
+    where?: CurrencyConversionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CurrencyConversions to fetch.
+     */
+    orderBy?: CurrencyConversionOrderByWithRelationInput | CurrencyConversionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CurrencyConversions.
+     */
+    cursor?: CurrencyConversionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CurrencyConversions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CurrencyConversions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CurrencyConversions.
+     */
+    distinct?: CurrencyConversionScalarFieldEnum | CurrencyConversionScalarFieldEnum[]
+  }
+
+  /**
+   * CurrencyConversion findMany
+   */
+  export type CurrencyConversionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * Filter, which CurrencyConversions to fetch.
+     */
+    where?: CurrencyConversionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CurrencyConversions to fetch.
+     */
+    orderBy?: CurrencyConversionOrderByWithRelationInput | CurrencyConversionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CurrencyConversions.
+     */
+    cursor?: CurrencyConversionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CurrencyConversions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CurrencyConversions.
+     */
+    skip?: number
+    distinct?: CurrencyConversionScalarFieldEnum | CurrencyConversionScalarFieldEnum[]
+  }
+
+  /**
+   * CurrencyConversion create
+   */
+  export type CurrencyConversionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CurrencyConversion.
+     */
+    data: XOR<CurrencyConversionCreateInput, CurrencyConversionUncheckedCreateInput>
+  }
+
+  /**
+   * CurrencyConversion createMany
+   */
+  export type CurrencyConversionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CurrencyConversions.
+     */
+    data: CurrencyConversionCreateManyInput | CurrencyConversionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CurrencyConversion createManyAndReturn
+   */
+  export type CurrencyConversionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * The data used to create many CurrencyConversions.
+     */
+    data: CurrencyConversionCreateManyInput | CurrencyConversionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CurrencyConversion update
+   */
+  export type CurrencyConversionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CurrencyConversion.
+     */
+    data: XOR<CurrencyConversionUpdateInput, CurrencyConversionUncheckedUpdateInput>
+    /**
+     * Choose, which CurrencyConversion to update.
+     */
+    where: CurrencyConversionWhereUniqueInput
+  }
+
+  /**
+   * CurrencyConversion updateMany
+   */
+  export type CurrencyConversionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CurrencyConversions.
+     */
+    data: XOR<CurrencyConversionUpdateManyMutationInput, CurrencyConversionUncheckedUpdateManyInput>
+    /**
+     * Filter which CurrencyConversions to update
+     */
+    where?: CurrencyConversionWhereInput
+    /**
+     * Limit how many CurrencyConversions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CurrencyConversion updateManyAndReturn
+   */
+  export type CurrencyConversionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * The data used to update CurrencyConversions.
+     */
+    data: XOR<CurrencyConversionUpdateManyMutationInput, CurrencyConversionUncheckedUpdateManyInput>
+    /**
+     * Filter which CurrencyConversions to update
+     */
+    where?: CurrencyConversionWhereInput
+    /**
+     * Limit how many CurrencyConversions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CurrencyConversion upsert
+   */
+  export type CurrencyConversionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CurrencyConversion to update in case it exists.
+     */
+    where: CurrencyConversionWhereUniqueInput
+    /**
+     * In case the CurrencyConversion found by the `where` argument doesn't exist, create a new CurrencyConversion with this data.
+     */
+    create: XOR<CurrencyConversionCreateInput, CurrencyConversionUncheckedCreateInput>
+    /**
+     * In case the CurrencyConversion was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CurrencyConversionUpdateInput, CurrencyConversionUncheckedUpdateInput>
+  }
+
+  /**
+   * CurrencyConversion delete
+   */
+  export type CurrencyConversionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+    /**
+     * Filter which CurrencyConversion to delete.
+     */
+    where: CurrencyConversionWhereUniqueInput
+  }
+
+  /**
+   * CurrencyConversion deleteMany
+   */
+  export type CurrencyConversionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CurrencyConversions to delete
+     */
+    where?: CurrencyConversionWhereInput
+    /**
+     * Limit how many CurrencyConversions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CurrencyConversion without action
+   */
+  export type CurrencyConversionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CurrencyConversion
+     */
+    select?: CurrencyConversionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CurrencyConversion
+     */
+    omit?: CurrencyConversionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CurrencyConversionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -12074,6 +13497,8 @@ export namespace Prisma {
     endDate: 'endDate',
     isActive: 'isActive',
     category: 'category',
+    targetCurrency: 'targetCurrency',
+    creatorWalletAddress: 'creatorWalletAddress',
     userId: 'userId'
   };
 
@@ -12138,6 +13563,25 @@ export namespace Prisma {
   };
 
   export type CampaignPayoutScalarFieldEnum = (typeof CampaignPayoutScalarFieldEnum)[keyof typeof CampaignPayoutScalarFieldEnum]
+
+
+  export const CurrencyConversionScalarFieldEnum: {
+    id: 'id',
+    donationId: 'donationId',
+    campaignId: 'campaignId',
+    fromCurrency: 'fromCurrency',
+    toCurrency: 'toCurrency',
+    fromAmount: 'fromAmount',
+    toAmount: 'toAmount',
+    exchangeId: 'exchangeId',
+    status: 'status',
+    estimatedCompletionTime: 'estimatedCompletionTime',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CurrencyConversionScalarFieldEnum = (typeof CurrencyConversionScalarFieldEnum)[keyof typeof CurrencyConversionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -12513,11 +13957,14 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"Campaign"> | Date | string | null
     isActive?: BoolFilter<"Campaign"> | boolean
     category?: StringNullableFilter<"Campaign"> | string | null
+    targetCurrency?: StringFilter<"Campaign"> | string
+    creatorWalletAddress?: StringNullableFilter<"Campaign"> | string | null
     userId?: StringFilter<"Campaign"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     donations?: DonationListRelationFilter
     updates?: CampaignUpdateListRelationFilter
     payouts?: CampaignPayoutListRelationFilter
+    currencyConversions?: CurrencyConversionListRelationFilter
   }
 
   export type CampaignOrderByWithRelationInput = {
@@ -12532,11 +13979,14 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     isActive?: SortOrder
     category?: SortOrderInput | SortOrder
+    targetCurrency?: SortOrder
+    creatorWalletAddress?: SortOrderInput | SortOrder
     userId?: SortOrder
     user?: UserOrderByWithRelationInput
     donations?: DonationOrderByRelationAggregateInput
     updates?: CampaignUpdateOrderByRelationAggregateInput
     payouts?: CampaignPayoutOrderByRelationAggregateInput
+    currencyConversions?: CurrencyConversionOrderByRelationAggregateInput
   }
 
   export type CampaignWhereUniqueInput = Prisma.AtLeast<{
@@ -12554,11 +14004,14 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"Campaign"> | Date | string | null
     isActive?: BoolFilter<"Campaign"> | boolean
     category?: StringNullableFilter<"Campaign"> | string | null
+    targetCurrency?: StringFilter<"Campaign"> | string
+    creatorWalletAddress?: StringNullableFilter<"Campaign"> | string | null
     userId?: StringFilter<"Campaign"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     donations?: DonationListRelationFilter
     updates?: CampaignUpdateListRelationFilter
     payouts?: CampaignPayoutListRelationFilter
+    currencyConversions?: CurrencyConversionListRelationFilter
   }, "id">
 
   export type CampaignOrderByWithAggregationInput = {
@@ -12573,6 +14026,8 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     isActive?: SortOrder
     category?: SortOrderInput | SortOrder
+    targetCurrency?: SortOrder
+    creatorWalletAddress?: SortOrderInput | SortOrder
     userId?: SortOrder
     _count?: CampaignCountOrderByAggregateInput
     _avg?: CampaignAvgOrderByAggregateInput
@@ -12596,6 +14051,8 @@ export namespace Prisma {
     endDate?: DateTimeNullableWithAggregatesFilter<"Campaign"> | Date | string | null
     isActive?: BoolWithAggregatesFilter<"Campaign"> | boolean
     category?: StringNullableWithAggregatesFilter<"Campaign"> | string | null
+    targetCurrency?: StringWithAggregatesFilter<"Campaign"> | string
+    creatorWalletAddress?: StringNullableWithAggregatesFilter<"Campaign"> | string | null
     userId?: StringWithAggregatesFilter<"Campaign"> | string
   }
 
@@ -12623,6 +14080,7 @@ export namespace Prisma {
     wallet?: XOR<WalletNullableScalarRelationFilter, WalletWhereInput> | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
+    currencyConversions?: CurrencyConversionListRelationFilter
   }
 
   export type DonationOrderByWithRelationInput = {
@@ -12646,6 +14104,7 @@ export namespace Prisma {
     wallet?: WalletOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
     campaign?: CampaignOrderByWithRelationInput
+    currencyConversions?: CurrencyConversionOrderByRelationAggregateInput
   }
 
   export type DonationWhereUniqueInput = Prisma.AtLeast<{
@@ -12672,6 +14131,7 @@ export namespace Prisma {
     wallet?: XOR<WalletNullableScalarRelationFilter, WalletWhereInput> | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
+    currencyConversions?: CurrencyConversionListRelationFilter
   }, "id" | "transactionHash">
 
   export type DonationOrderByWithAggregationInput = {
@@ -12911,6 +14371,106 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"CampaignPayout"> | string
     createdAt?: DateTimeWithAggregatesFilter<"CampaignPayout"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CampaignPayout"> | Date | string
+  }
+
+  export type CurrencyConversionWhereInput = {
+    AND?: CurrencyConversionWhereInput | CurrencyConversionWhereInput[]
+    OR?: CurrencyConversionWhereInput[]
+    NOT?: CurrencyConversionWhereInput | CurrencyConversionWhereInput[]
+    id?: StringFilter<"CurrencyConversion"> | string
+    donationId?: StringFilter<"CurrencyConversion"> | string
+    campaignId?: StringFilter<"CurrencyConversion"> | string
+    fromCurrency?: StringFilter<"CurrencyConversion"> | string
+    toCurrency?: StringFilter<"CurrencyConversion"> | string
+    fromAmount?: FloatFilter<"CurrencyConversion"> | number
+    toAmount?: FloatNullableFilter<"CurrencyConversion"> | number | null
+    exchangeId?: StringFilter<"CurrencyConversion"> | string
+    status?: StringFilter<"CurrencyConversion"> | string
+    estimatedCompletionTime?: DateTimeNullableFilter<"CurrencyConversion"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"CurrencyConversion"> | Date | string | null
+    createdAt?: DateTimeFilter<"CurrencyConversion"> | Date | string
+    updatedAt?: DateTimeFilter<"CurrencyConversion"> | Date | string
+    donation?: XOR<DonationScalarRelationFilter, DonationWhereInput>
+    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
+  }
+
+  export type CurrencyConversionOrderByWithRelationInput = {
+    id?: SortOrder
+    donationId?: SortOrder
+    campaignId?: SortOrder
+    fromCurrency?: SortOrder
+    toCurrency?: SortOrder
+    fromAmount?: SortOrder
+    toAmount?: SortOrderInput | SortOrder
+    exchangeId?: SortOrder
+    status?: SortOrder
+    estimatedCompletionTime?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    donation?: DonationOrderByWithRelationInput
+    campaign?: CampaignOrderByWithRelationInput
+  }
+
+  export type CurrencyConversionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CurrencyConversionWhereInput | CurrencyConversionWhereInput[]
+    OR?: CurrencyConversionWhereInput[]
+    NOT?: CurrencyConversionWhereInput | CurrencyConversionWhereInput[]
+    donationId?: StringFilter<"CurrencyConversion"> | string
+    campaignId?: StringFilter<"CurrencyConversion"> | string
+    fromCurrency?: StringFilter<"CurrencyConversion"> | string
+    toCurrency?: StringFilter<"CurrencyConversion"> | string
+    fromAmount?: FloatFilter<"CurrencyConversion"> | number
+    toAmount?: FloatNullableFilter<"CurrencyConversion"> | number | null
+    exchangeId?: StringFilter<"CurrencyConversion"> | string
+    status?: StringFilter<"CurrencyConversion"> | string
+    estimatedCompletionTime?: DateTimeNullableFilter<"CurrencyConversion"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"CurrencyConversion"> | Date | string | null
+    createdAt?: DateTimeFilter<"CurrencyConversion"> | Date | string
+    updatedAt?: DateTimeFilter<"CurrencyConversion"> | Date | string
+    donation?: XOR<DonationScalarRelationFilter, DonationWhereInput>
+    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
+  }, "id">
+
+  export type CurrencyConversionOrderByWithAggregationInput = {
+    id?: SortOrder
+    donationId?: SortOrder
+    campaignId?: SortOrder
+    fromCurrency?: SortOrder
+    toCurrency?: SortOrder
+    fromAmount?: SortOrder
+    toAmount?: SortOrderInput | SortOrder
+    exchangeId?: SortOrder
+    status?: SortOrder
+    estimatedCompletionTime?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CurrencyConversionCountOrderByAggregateInput
+    _avg?: CurrencyConversionAvgOrderByAggregateInput
+    _max?: CurrencyConversionMaxOrderByAggregateInput
+    _min?: CurrencyConversionMinOrderByAggregateInput
+    _sum?: CurrencyConversionSumOrderByAggregateInput
+  }
+
+  export type CurrencyConversionScalarWhereWithAggregatesInput = {
+    AND?: CurrencyConversionScalarWhereWithAggregatesInput | CurrencyConversionScalarWhereWithAggregatesInput[]
+    OR?: CurrencyConversionScalarWhereWithAggregatesInput[]
+    NOT?: CurrencyConversionScalarWhereWithAggregatesInput | CurrencyConversionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CurrencyConversion"> | string
+    donationId?: StringWithAggregatesFilter<"CurrencyConversion"> | string
+    campaignId?: StringWithAggregatesFilter<"CurrencyConversion"> | string
+    fromCurrency?: StringWithAggregatesFilter<"CurrencyConversion"> | string
+    toCurrency?: StringWithAggregatesFilter<"CurrencyConversion"> | string
+    fromAmount?: FloatWithAggregatesFilter<"CurrencyConversion"> | number
+    toAmount?: FloatNullableWithAggregatesFilter<"CurrencyConversion"> | number | null
+    exchangeId?: StringWithAggregatesFilter<"CurrencyConversion"> | string
+    status?: StringWithAggregatesFilter<"CurrencyConversion"> | string
+    estimatedCompletionTime?: DateTimeNullableWithAggregatesFilter<"CurrencyConversion"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"CurrencyConversion"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CurrencyConversion"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CurrencyConversion"> | Date | string
   }
 
   export type AccountCreateInput = {
@@ -13209,10 +14769,13 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     user: UserCreateNestedOneWithoutCampaignsInput
     donations?: DonationCreateNestedManyWithoutCampaignInput
     updates?: CampaignUpdateCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateInput = {
@@ -13227,10 +14790,13 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     userId: string
     donations?: DonationUncheckedCreateNestedManyWithoutCampaignInput
     updates?: CampaignUpdateUncheckedCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutUncheckedCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUpdateInput = {
@@ -13245,10 +14811,13 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     donations?: DonationUpdateManyWithoutCampaignNestedInput
     updates?: CampaignUpdateUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateInput = {
@@ -13263,10 +14832,13 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     donations?: DonationUncheckedUpdateManyWithoutCampaignNestedInput
     updates?: CampaignUpdateUncheckedUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUncheckedUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignCreateManyInput = {
@@ -13281,6 +14853,8 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     userId: string
   }
 
@@ -13296,6 +14870,8 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CampaignUncheckedUpdateManyInput = {
@@ -13310,6 +14886,8 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -13331,6 +14909,7 @@ export namespace Prisma {
     wallet?: WalletCreateNestedOneWithoutDonationsInput
     user: UserCreateNestedOneWithoutDonationsInput
     campaign: CampaignCreateNestedOneWithoutDonationsInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutDonationInput
   }
 
   export type DonationUncheckedCreateInput = {
@@ -13351,6 +14930,7 @@ export namespace Prisma {
     paymentId?: string | null
     refunded?: boolean
     usdEquivalent?: number | null
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutDonationInput
   }
 
   export type DonationUpdateInput = {
@@ -13371,6 +14951,7 @@ export namespace Prisma {
     wallet?: WalletUpdateOneWithoutDonationsNestedInput
     user?: UserUpdateOneRequiredWithoutDonationsNestedInput
     campaign?: CampaignUpdateOneRequiredWithoutDonationsNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationUncheckedUpdateInput = {
@@ -13391,6 +14972,7 @@ export namespace Prisma {
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     refunded?: BoolFieldUpdateOperationsInput | boolean
     usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationCreateManyInput = {
@@ -13643,6 +15225,116 @@ export namespace Prisma {
     walletAddress?: StringFieldUpdateOperationsInput | string
     transactionId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrencyConversionCreateInput = {
+    id?: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    donation: DonationCreateNestedOneWithoutCurrencyConversionsInput
+    campaign: CampaignCreateNestedOneWithoutCurrencyConversionsInput
+  }
+
+  export type CurrencyConversionUncheckedCreateInput = {
+    id?: string
+    donationId: string
+    campaignId: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrencyConversionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    donation?: DonationUpdateOneRequiredWithoutCurrencyConversionsNestedInput
+    campaign?: CampaignUpdateOneRequiredWithoutCurrencyConversionsNestedInput
+  }
+
+  export type CurrencyConversionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    donationId?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrencyConversionCreateManyInput = {
+    id?: string
+    donationId: string
+    campaignId: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrencyConversionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrencyConversionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    donationId?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14010,11 +15702,21 @@ export namespace Prisma {
     none?: CampaignPayoutWhereInput
   }
 
+  export type CurrencyConversionListRelationFilter = {
+    every?: CurrencyConversionWhereInput
+    some?: CurrencyConversionWhereInput
+    none?: CurrencyConversionWhereInput
+  }
+
   export type CampaignUpdateOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type CampaignPayoutOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CurrencyConversionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -14030,6 +15732,8 @@ export namespace Prisma {
     endDate?: SortOrder
     isActive?: SortOrder
     category?: SortOrder
+    targetCurrency?: SortOrder
+    creatorWalletAddress?: SortOrder
     userId?: SortOrder
   }
 
@@ -14050,6 +15754,8 @@ export namespace Prisma {
     endDate?: SortOrder
     isActive?: SortOrder
     category?: SortOrder
+    targetCurrency?: SortOrder
+    creatorWalletAddress?: SortOrder
     userId?: SortOrder
   }
 
@@ -14065,6 +15771,8 @@ export namespace Prisma {
     endDate?: SortOrder
     isActive?: SortOrder
     category?: SortOrder
+    targetCurrency?: SortOrder
+    creatorWalletAddress?: SortOrder
     userId?: SortOrder
   }
 
@@ -14299,6 +16007,69 @@ export namespace Prisma {
 
   export type CampaignPayoutSumOrderByAggregateInput = {
     amount?: SortOrder
+  }
+
+  export type DonationScalarRelationFilter = {
+    is?: DonationWhereInput
+    isNot?: DonationWhereInput
+  }
+
+  export type CurrencyConversionCountOrderByAggregateInput = {
+    id?: SortOrder
+    donationId?: SortOrder
+    campaignId?: SortOrder
+    fromCurrency?: SortOrder
+    toCurrency?: SortOrder
+    fromAmount?: SortOrder
+    toAmount?: SortOrder
+    exchangeId?: SortOrder
+    status?: SortOrder
+    estimatedCompletionTime?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CurrencyConversionAvgOrderByAggregateInput = {
+    fromAmount?: SortOrder
+    toAmount?: SortOrder
+  }
+
+  export type CurrencyConversionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    donationId?: SortOrder
+    campaignId?: SortOrder
+    fromCurrency?: SortOrder
+    toCurrency?: SortOrder
+    fromAmount?: SortOrder
+    toAmount?: SortOrder
+    exchangeId?: SortOrder
+    status?: SortOrder
+    estimatedCompletionTime?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CurrencyConversionMinOrderByAggregateInput = {
+    id?: SortOrder
+    donationId?: SortOrder
+    campaignId?: SortOrder
+    fromCurrency?: SortOrder
+    toCurrency?: SortOrder
+    fromAmount?: SortOrder
+    toAmount?: SortOrder
+    exchangeId?: SortOrder
+    status?: SortOrder
+    estimatedCompletionTime?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CurrencyConversionSumOrderByAggregateInput = {
+    fromAmount?: SortOrder
+    toAmount?: SortOrder
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -14590,6 +16361,13 @@ export namespace Prisma {
     connect?: CampaignPayoutWhereUniqueInput | CampaignPayoutWhereUniqueInput[]
   }
 
+  export type CurrencyConversionCreateNestedManyWithoutCampaignInput = {
+    create?: XOR<CurrencyConversionCreateWithoutCampaignInput, CurrencyConversionUncheckedCreateWithoutCampaignInput> | CurrencyConversionCreateWithoutCampaignInput[] | CurrencyConversionUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutCampaignInput | CurrencyConversionCreateOrConnectWithoutCampaignInput[]
+    createMany?: CurrencyConversionCreateManyCampaignInputEnvelope
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+  }
+
   export type DonationUncheckedCreateNestedManyWithoutCampaignInput = {
     create?: XOR<DonationCreateWithoutCampaignInput, DonationUncheckedCreateWithoutCampaignInput> | DonationCreateWithoutCampaignInput[] | DonationUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: DonationCreateOrConnectWithoutCampaignInput | DonationCreateOrConnectWithoutCampaignInput[]
@@ -14609,6 +16387,13 @@ export namespace Prisma {
     connectOrCreate?: CampaignPayoutCreateOrConnectWithoutCampaignInput | CampaignPayoutCreateOrConnectWithoutCampaignInput[]
     createMany?: CampaignPayoutCreateManyCampaignInputEnvelope
     connect?: CampaignPayoutWhereUniqueInput | CampaignPayoutWhereUniqueInput[]
+  }
+
+  export type CurrencyConversionUncheckedCreateNestedManyWithoutCampaignInput = {
+    create?: XOR<CurrencyConversionCreateWithoutCampaignInput, CurrencyConversionUncheckedCreateWithoutCampaignInput> | CurrencyConversionCreateWithoutCampaignInput[] | CurrencyConversionUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutCampaignInput | CurrencyConversionCreateOrConnectWithoutCampaignInput[]
+    createMany?: CurrencyConversionCreateManyCampaignInputEnvelope
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -14673,6 +16458,20 @@ export namespace Prisma {
     deleteMany?: CampaignPayoutScalarWhereInput | CampaignPayoutScalarWhereInput[]
   }
 
+  export type CurrencyConversionUpdateManyWithoutCampaignNestedInput = {
+    create?: XOR<CurrencyConversionCreateWithoutCampaignInput, CurrencyConversionUncheckedCreateWithoutCampaignInput> | CurrencyConversionCreateWithoutCampaignInput[] | CurrencyConversionUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutCampaignInput | CurrencyConversionCreateOrConnectWithoutCampaignInput[]
+    upsert?: CurrencyConversionUpsertWithWhereUniqueWithoutCampaignInput | CurrencyConversionUpsertWithWhereUniqueWithoutCampaignInput[]
+    createMany?: CurrencyConversionCreateManyCampaignInputEnvelope
+    set?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    disconnect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    delete?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    update?: CurrencyConversionUpdateWithWhereUniqueWithoutCampaignInput | CurrencyConversionUpdateWithWhereUniqueWithoutCampaignInput[]
+    updateMany?: CurrencyConversionUpdateManyWithWhereWithoutCampaignInput | CurrencyConversionUpdateManyWithWhereWithoutCampaignInput[]
+    deleteMany?: CurrencyConversionScalarWhereInput | CurrencyConversionScalarWhereInput[]
+  }
+
   export type DonationUncheckedUpdateManyWithoutCampaignNestedInput = {
     create?: XOR<DonationCreateWithoutCampaignInput, DonationUncheckedCreateWithoutCampaignInput> | DonationCreateWithoutCampaignInput[] | DonationUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: DonationCreateOrConnectWithoutCampaignInput | DonationCreateOrConnectWithoutCampaignInput[]
@@ -14715,6 +16514,20 @@ export namespace Prisma {
     deleteMany?: CampaignPayoutScalarWhereInput | CampaignPayoutScalarWhereInput[]
   }
 
+  export type CurrencyConversionUncheckedUpdateManyWithoutCampaignNestedInput = {
+    create?: XOR<CurrencyConversionCreateWithoutCampaignInput, CurrencyConversionUncheckedCreateWithoutCampaignInput> | CurrencyConversionCreateWithoutCampaignInput[] | CurrencyConversionUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutCampaignInput | CurrencyConversionCreateOrConnectWithoutCampaignInput[]
+    upsert?: CurrencyConversionUpsertWithWhereUniqueWithoutCampaignInput | CurrencyConversionUpsertWithWhereUniqueWithoutCampaignInput[]
+    createMany?: CurrencyConversionCreateManyCampaignInputEnvelope
+    set?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    disconnect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    delete?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    update?: CurrencyConversionUpdateWithWhereUniqueWithoutCampaignInput | CurrencyConversionUpdateWithWhereUniqueWithoutCampaignInput[]
+    updateMany?: CurrencyConversionUpdateManyWithWhereWithoutCampaignInput | CurrencyConversionUpdateManyWithWhereWithoutCampaignInput[]
+    deleteMany?: CurrencyConversionScalarWhereInput | CurrencyConversionScalarWhereInput[]
+  }
+
   export type WalletCreateNestedOneWithoutDonationsInput = {
     create?: XOR<WalletCreateWithoutDonationsInput, WalletUncheckedCreateWithoutDonationsInput>
     connectOrCreate?: WalletCreateOrConnectWithoutDonationsInput
@@ -14731,6 +16544,20 @@ export namespace Prisma {
     create?: XOR<CampaignCreateWithoutDonationsInput, CampaignUncheckedCreateWithoutDonationsInput>
     connectOrCreate?: CampaignCreateOrConnectWithoutDonationsInput
     connect?: CampaignWhereUniqueInput
+  }
+
+  export type CurrencyConversionCreateNestedManyWithoutDonationInput = {
+    create?: XOR<CurrencyConversionCreateWithoutDonationInput, CurrencyConversionUncheckedCreateWithoutDonationInput> | CurrencyConversionCreateWithoutDonationInput[] | CurrencyConversionUncheckedCreateWithoutDonationInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutDonationInput | CurrencyConversionCreateOrConnectWithoutDonationInput[]
+    createMany?: CurrencyConversionCreateManyDonationInputEnvelope
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+  }
+
+  export type CurrencyConversionUncheckedCreateNestedManyWithoutDonationInput = {
+    create?: XOR<CurrencyConversionCreateWithoutDonationInput, CurrencyConversionUncheckedCreateWithoutDonationInput> | CurrencyConversionCreateWithoutDonationInput[] | CurrencyConversionUncheckedCreateWithoutDonationInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutDonationInput | CurrencyConversionCreateOrConnectWithoutDonationInput[]
+    createMany?: CurrencyConversionCreateManyDonationInputEnvelope
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -14765,6 +16592,34 @@ export namespace Prisma {
     upsert?: CampaignUpsertWithoutDonationsInput
     connect?: CampaignWhereUniqueInput
     update?: XOR<XOR<CampaignUpdateToOneWithWhereWithoutDonationsInput, CampaignUpdateWithoutDonationsInput>, CampaignUncheckedUpdateWithoutDonationsInput>
+  }
+
+  export type CurrencyConversionUpdateManyWithoutDonationNestedInput = {
+    create?: XOR<CurrencyConversionCreateWithoutDonationInput, CurrencyConversionUncheckedCreateWithoutDonationInput> | CurrencyConversionCreateWithoutDonationInput[] | CurrencyConversionUncheckedCreateWithoutDonationInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutDonationInput | CurrencyConversionCreateOrConnectWithoutDonationInput[]
+    upsert?: CurrencyConversionUpsertWithWhereUniqueWithoutDonationInput | CurrencyConversionUpsertWithWhereUniqueWithoutDonationInput[]
+    createMany?: CurrencyConversionCreateManyDonationInputEnvelope
+    set?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    disconnect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    delete?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    update?: CurrencyConversionUpdateWithWhereUniqueWithoutDonationInput | CurrencyConversionUpdateWithWhereUniqueWithoutDonationInput[]
+    updateMany?: CurrencyConversionUpdateManyWithWhereWithoutDonationInput | CurrencyConversionUpdateManyWithWhereWithoutDonationInput[]
+    deleteMany?: CurrencyConversionScalarWhereInput | CurrencyConversionScalarWhereInput[]
+  }
+
+  export type CurrencyConversionUncheckedUpdateManyWithoutDonationNestedInput = {
+    create?: XOR<CurrencyConversionCreateWithoutDonationInput, CurrencyConversionUncheckedCreateWithoutDonationInput> | CurrencyConversionCreateWithoutDonationInput[] | CurrencyConversionUncheckedCreateWithoutDonationInput[]
+    connectOrCreate?: CurrencyConversionCreateOrConnectWithoutDonationInput | CurrencyConversionCreateOrConnectWithoutDonationInput[]
+    upsert?: CurrencyConversionUpsertWithWhereUniqueWithoutDonationInput | CurrencyConversionUpsertWithWhereUniqueWithoutDonationInput[]
+    createMany?: CurrencyConversionCreateManyDonationInputEnvelope
+    set?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    disconnect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    delete?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    connect?: CurrencyConversionWhereUniqueInput | CurrencyConversionWhereUniqueInput[]
+    update?: CurrencyConversionUpdateWithWhereUniqueWithoutDonationInput | CurrencyConversionUpdateWithWhereUniqueWithoutDonationInput[]
+    updateMany?: CurrencyConversionUpdateManyWithWhereWithoutDonationInput | CurrencyConversionUpdateManyWithWhereWithoutDonationInput[]
+    deleteMany?: CurrencyConversionScalarWhereInput | CurrencyConversionScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutWalletsInput = {
@@ -14849,6 +16704,34 @@ export namespace Prisma {
     upsert?: CampaignUpsertWithoutPayoutsInput
     connect?: CampaignWhereUniqueInput
     update?: XOR<XOR<CampaignUpdateToOneWithWhereWithoutPayoutsInput, CampaignUpdateWithoutPayoutsInput>, CampaignUncheckedUpdateWithoutPayoutsInput>
+  }
+
+  export type DonationCreateNestedOneWithoutCurrencyConversionsInput = {
+    create?: XOR<DonationCreateWithoutCurrencyConversionsInput, DonationUncheckedCreateWithoutCurrencyConversionsInput>
+    connectOrCreate?: DonationCreateOrConnectWithoutCurrencyConversionsInput
+    connect?: DonationWhereUniqueInput
+  }
+
+  export type CampaignCreateNestedOneWithoutCurrencyConversionsInput = {
+    create?: XOR<CampaignCreateWithoutCurrencyConversionsInput, CampaignUncheckedCreateWithoutCurrencyConversionsInput>
+    connectOrCreate?: CampaignCreateOrConnectWithoutCurrencyConversionsInput
+    connect?: CampaignWhereUniqueInput
+  }
+
+  export type DonationUpdateOneRequiredWithoutCurrencyConversionsNestedInput = {
+    create?: XOR<DonationCreateWithoutCurrencyConversionsInput, DonationUncheckedCreateWithoutCurrencyConversionsInput>
+    connectOrCreate?: DonationCreateOrConnectWithoutCurrencyConversionsInput
+    upsert?: DonationUpsertWithoutCurrencyConversionsInput
+    connect?: DonationWhereUniqueInput
+    update?: XOR<XOR<DonationUpdateToOneWithWhereWithoutCurrencyConversionsInput, DonationUpdateWithoutCurrencyConversionsInput>, DonationUncheckedUpdateWithoutCurrencyConversionsInput>
+  }
+
+  export type CampaignUpdateOneRequiredWithoutCurrencyConversionsNestedInput = {
+    create?: XOR<CampaignCreateWithoutCurrencyConversionsInput, CampaignUncheckedCreateWithoutCurrencyConversionsInput>
+    connectOrCreate?: CampaignCreateOrConnectWithoutCurrencyConversionsInput
+    upsert?: CampaignUpsertWithoutCurrencyConversionsInput
+    connect?: CampaignWhereUniqueInput
+    update?: XOR<XOR<CampaignUpdateToOneWithWhereWithoutCurrencyConversionsInput, CampaignUpdateWithoutCurrencyConversionsInput>, CampaignUncheckedUpdateWithoutCurrencyConversionsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -15284,9 +17167,12 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     donations?: DonationCreateNestedManyWithoutCampaignInput
     updates?: CampaignUpdateCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateWithoutUserInput = {
@@ -15301,9 +17187,12 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     donations?: DonationUncheckedCreateNestedManyWithoutCampaignInput
     updates?: CampaignUpdateUncheckedCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutUncheckedCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignCreateOrConnectWithoutUserInput = {
@@ -15333,6 +17222,7 @@ export namespace Prisma {
     usdEquivalent?: number | null
     wallet?: WalletCreateNestedOneWithoutDonationsInput
     campaign: CampaignCreateNestedOneWithoutDonationsInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutDonationInput
   }
 
   export type DonationUncheckedCreateWithoutUserInput = {
@@ -15352,6 +17242,7 @@ export namespace Prisma {
     paymentId?: string | null
     refunded?: boolean
     usdEquivalent?: number | null
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutDonationInput
   }
 
   export type DonationCreateOrConnectWithoutUserInput = {
@@ -15481,6 +17372,8 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"Campaign"> | Date | string | null
     isActive?: BoolFilter<"Campaign"> | boolean
     category?: StringNullableFilter<"Campaign"> | string | null
+    targetCurrency?: StringFilter<"Campaign"> | string
+    creatorWalletAddress?: StringNullableFilter<"Campaign"> | string | null
     userId?: StringFilter<"Campaign"> | string
   }
 
@@ -15600,6 +17493,7 @@ export namespace Prisma {
     usdEquivalent?: number | null
     wallet?: WalletCreateNestedOneWithoutDonationsInput
     user: UserCreateNestedOneWithoutDonationsInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutDonationInput
   }
 
   export type DonationUncheckedCreateWithoutCampaignInput = {
@@ -15619,6 +17513,7 @@ export namespace Prisma {
     paymentId?: string | null
     refunded?: boolean
     usdEquivalent?: number | null
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutDonationInput
   }
 
   export type DonationCreateOrConnectWithoutCampaignInput = {
@@ -15684,6 +17579,46 @@ export namespace Prisma {
 
   export type CampaignPayoutCreateManyCampaignInputEnvelope = {
     data: CampaignPayoutCreateManyCampaignInput | CampaignPayoutCreateManyCampaignInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CurrencyConversionCreateWithoutCampaignInput = {
+    id?: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    donation: DonationCreateNestedOneWithoutCurrencyConversionsInput
+  }
+
+  export type CurrencyConversionUncheckedCreateWithoutCampaignInput = {
+    id?: string
+    donationId: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrencyConversionCreateOrConnectWithoutCampaignInput = {
+    where: CurrencyConversionWhereUniqueInput
+    create: XOR<CurrencyConversionCreateWithoutCampaignInput, CurrencyConversionUncheckedCreateWithoutCampaignInput>
+  }
+
+  export type CurrencyConversionCreateManyCampaignInputEnvelope = {
+    data: CurrencyConversionCreateManyCampaignInput | CurrencyConversionCreateManyCampaignInput[]
     skipDuplicates?: boolean
   }
 
@@ -15800,6 +17735,41 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"CampaignPayout"> | Date | string
   }
 
+  export type CurrencyConversionUpsertWithWhereUniqueWithoutCampaignInput = {
+    where: CurrencyConversionWhereUniqueInput
+    update: XOR<CurrencyConversionUpdateWithoutCampaignInput, CurrencyConversionUncheckedUpdateWithoutCampaignInput>
+    create: XOR<CurrencyConversionCreateWithoutCampaignInput, CurrencyConversionUncheckedCreateWithoutCampaignInput>
+  }
+
+  export type CurrencyConversionUpdateWithWhereUniqueWithoutCampaignInput = {
+    where: CurrencyConversionWhereUniqueInput
+    data: XOR<CurrencyConversionUpdateWithoutCampaignInput, CurrencyConversionUncheckedUpdateWithoutCampaignInput>
+  }
+
+  export type CurrencyConversionUpdateManyWithWhereWithoutCampaignInput = {
+    where: CurrencyConversionScalarWhereInput
+    data: XOR<CurrencyConversionUpdateManyMutationInput, CurrencyConversionUncheckedUpdateManyWithoutCampaignInput>
+  }
+
+  export type CurrencyConversionScalarWhereInput = {
+    AND?: CurrencyConversionScalarWhereInput | CurrencyConversionScalarWhereInput[]
+    OR?: CurrencyConversionScalarWhereInput[]
+    NOT?: CurrencyConversionScalarWhereInput | CurrencyConversionScalarWhereInput[]
+    id?: StringFilter<"CurrencyConversion"> | string
+    donationId?: StringFilter<"CurrencyConversion"> | string
+    campaignId?: StringFilter<"CurrencyConversion"> | string
+    fromCurrency?: StringFilter<"CurrencyConversion"> | string
+    toCurrency?: StringFilter<"CurrencyConversion"> | string
+    fromAmount?: FloatFilter<"CurrencyConversion"> | number
+    toAmount?: FloatNullableFilter<"CurrencyConversion"> | number | null
+    exchangeId?: StringFilter<"CurrencyConversion"> | string
+    status?: StringFilter<"CurrencyConversion"> | string
+    estimatedCompletionTime?: DateTimeNullableFilter<"CurrencyConversion"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"CurrencyConversion"> | Date | string | null
+    createdAt?: DateTimeFilter<"CurrencyConversion"> | Date | string
+    updatedAt?: DateTimeFilter<"CurrencyConversion"> | Date | string
+  }
+
   export type WalletCreateWithoutDonationsInput = {
     id?: string
     walletType: string
@@ -15866,9 +17836,12 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     user: UserCreateNestedOneWithoutCampaignsInput
     updates?: CampaignUpdateCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateWithoutDonationsInput = {
@@ -15883,14 +17856,57 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     userId: string
     updates?: CampaignUpdateUncheckedCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutUncheckedCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignCreateOrConnectWithoutDonationsInput = {
     where: CampaignWhereUniqueInput
     create: XOR<CampaignCreateWithoutDonationsInput, CampaignUncheckedCreateWithoutDonationsInput>
+  }
+
+  export type CurrencyConversionCreateWithoutDonationInput = {
+    id?: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    campaign: CampaignCreateNestedOneWithoutCurrencyConversionsInput
+  }
+
+  export type CurrencyConversionUncheckedCreateWithoutDonationInput = {
+    id?: string
+    campaignId: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrencyConversionCreateOrConnectWithoutDonationInput = {
+    where: CurrencyConversionWhereUniqueInput
+    create: XOR<CurrencyConversionCreateWithoutDonationInput, CurrencyConversionUncheckedCreateWithoutDonationInput>
+  }
+
+  export type CurrencyConversionCreateManyDonationInputEnvelope = {
+    data: CurrencyConversionCreateManyDonationInput | CurrencyConversionCreateManyDonationInput[]
+    skipDuplicates?: boolean
   }
 
   export type WalletUpsertWithoutDonationsInput = {
@@ -15982,9 +17998,12 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     updates?: CampaignUpdateUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateWithoutDonationsInput = {
@@ -15999,9 +18018,28 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     updates?: CampaignUpdateUncheckedUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUncheckedUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutCampaignNestedInput
+  }
+
+  export type CurrencyConversionUpsertWithWhereUniqueWithoutDonationInput = {
+    where: CurrencyConversionWhereUniqueInput
+    update: XOR<CurrencyConversionUpdateWithoutDonationInput, CurrencyConversionUncheckedUpdateWithoutDonationInput>
+    create: XOR<CurrencyConversionCreateWithoutDonationInput, CurrencyConversionUncheckedCreateWithoutDonationInput>
+  }
+
+  export type CurrencyConversionUpdateWithWhereUniqueWithoutDonationInput = {
+    where: CurrencyConversionWhereUniqueInput
+    data: XOR<CurrencyConversionUpdateWithoutDonationInput, CurrencyConversionUncheckedUpdateWithoutDonationInput>
+  }
+
+  export type CurrencyConversionUpdateManyWithWhereWithoutDonationInput = {
+    where: CurrencyConversionScalarWhereInput
+    data: XOR<CurrencyConversionUpdateManyMutationInput, CurrencyConversionUncheckedUpdateManyWithoutDonationInput>
   }
 
   export type UserCreateWithoutWalletsInput = {
@@ -16054,6 +18092,7 @@ export namespace Prisma {
     usdEquivalent?: number | null
     user: UserCreateNestedOneWithoutDonationsInput
     campaign: CampaignCreateNestedOneWithoutDonationsInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutDonationInput
   }
 
   export type DonationUncheckedCreateWithoutWalletInput = {
@@ -16073,6 +18112,7 @@ export namespace Prisma {
     paymentId?: string | null
     refunded?: boolean
     usdEquivalent?: number | null
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutDonationInput
   }
 
   export type DonationCreateOrConnectWithoutWalletInput = {
@@ -16152,9 +18192,12 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     user: UserCreateNestedOneWithoutCampaignsInput
     donations?: DonationCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateWithoutUpdatesInput = {
@@ -16169,9 +18212,12 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     userId: string
     donations?: DonationUncheckedCreateNestedManyWithoutCampaignInput
     payouts?: CampaignPayoutUncheckedCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignCreateOrConnectWithoutUpdatesInput = {
@@ -16202,9 +18248,12 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     donations?: DonationUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateWithoutUpdatesInput = {
@@ -16219,9 +18268,12 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     donations?: DonationUncheckedUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUncheckedUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignCreateWithoutPayoutsInput = {
@@ -16236,9 +18288,12 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     user: UserCreateNestedOneWithoutCampaignsInput
     donations?: DonationCreateNestedManyWithoutCampaignInput
     updates?: CampaignUpdateCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateWithoutPayoutsInput = {
@@ -16253,9 +18308,12 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
     userId: string
     donations?: DonationUncheckedCreateNestedManyWithoutCampaignInput
     updates?: CampaignUpdateUncheckedCreateNestedManyWithoutCampaignInput
+    currencyConversions?: CurrencyConversionUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignCreateOrConnectWithoutPayoutsInput = {
@@ -16286,9 +18344,12 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
     donations?: DonationUpdateManyWithoutCampaignNestedInput
     updates?: CampaignUpdateUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateWithoutPayoutsInput = {
@@ -16303,9 +18364,204 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     donations?: DonationUncheckedUpdateManyWithoutCampaignNestedInput
     updates?: CampaignUpdateUncheckedUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutCampaignNestedInput
+  }
+
+  export type DonationCreateWithoutCurrencyConversionsInput = {
+    id?: string
+    amount: number
+    currency?: string
+    cryptoType?: string | null
+    message?: string | null
+    isAnonymous?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactionHash?: string | null
+    status?: string
+    paymentAddress?: string | null
+    paymentId?: string | null
+    refunded?: boolean
+    usdEquivalent?: number | null
+    wallet?: WalletCreateNestedOneWithoutDonationsInput
+    user: UserCreateNestedOneWithoutDonationsInput
+    campaign: CampaignCreateNestedOneWithoutDonationsInput
+  }
+
+  export type DonationUncheckedCreateWithoutCurrencyConversionsInput = {
+    id?: string
+    amount: number
+    currency?: string
+    cryptoType?: string | null
+    walletId?: string | null
+    message?: string | null
+    isAnonymous?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userId: string
+    campaignId: string
+    transactionHash?: string | null
+    status?: string
+    paymentAddress?: string | null
+    paymentId?: string | null
+    refunded?: boolean
+    usdEquivalent?: number | null
+  }
+
+  export type DonationCreateOrConnectWithoutCurrencyConversionsInput = {
+    where: DonationWhereUniqueInput
+    create: XOR<DonationCreateWithoutCurrencyConversionsInput, DonationUncheckedCreateWithoutCurrencyConversionsInput>
+  }
+
+  export type CampaignCreateWithoutCurrencyConversionsInput = {
+    id?: string
+    title: string
+    description: string
+    goal: number
+    raised?: number
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    endDate?: Date | string | null
+    isActive?: boolean
+    category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
+    user: UserCreateNestedOneWithoutCampaignsInput
+    donations?: DonationCreateNestedManyWithoutCampaignInput
+    updates?: CampaignUpdateCreateNestedManyWithoutCampaignInput
+    payouts?: CampaignPayoutCreateNestedManyWithoutCampaignInput
+  }
+
+  export type CampaignUncheckedCreateWithoutCurrencyConversionsInput = {
+    id?: string
+    title: string
+    description: string
+    goal: number
+    raised?: number
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    endDate?: Date | string | null
+    isActive?: boolean
+    category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
+    userId: string
+    donations?: DonationUncheckedCreateNestedManyWithoutCampaignInput
+    updates?: CampaignUpdateUncheckedCreateNestedManyWithoutCampaignInput
+    payouts?: CampaignPayoutUncheckedCreateNestedManyWithoutCampaignInput
+  }
+
+  export type CampaignCreateOrConnectWithoutCurrencyConversionsInput = {
+    where: CampaignWhereUniqueInput
+    create: XOR<CampaignCreateWithoutCurrencyConversionsInput, CampaignUncheckedCreateWithoutCurrencyConversionsInput>
+  }
+
+  export type DonationUpsertWithoutCurrencyConversionsInput = {
+    update: XOR<DonationUpdateWithoutCurrencyConversionsInput, DonationUncheckedUpdateWithoutCurrencyConversionsInput>
+    create: XOR<DonationCreateWithoutCurrencyConversionsInput, DonationUncheckedCreateWithoutCurrencyConversionsInput>
+    where?: DonationWhereInput
+  }
+
+  export type DonationUpdateToOneWithWhereWithoutCurrencyConversionsInput = {
+    where?: DonationWhereInput
+    data: XOR<DonationUpdateWithoutCurrencyConversionsInput, DonationUncheckedUpdateWithoutCurrencyConversionsInput>
+  }
+
+  export type DonationUpdateWithoutCurrencyConversionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    cryptoType?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactionHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    refunded?: BoolFieldUpdateOperationsInput | boolean
+    usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
+    wallet?: WalletUpdateOneWithoutDonationsNestedInput
+    user?: UserUpdateOneRequiredWithoutDonationsNestedInput
+    campaign?: CampaignUpdateOneRequiredWithoutDonationsNestedInput
+  }
+
+  export type DonationUncheckedUpdateWithoutCurrencyConversionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    cryptoType?: NullableStringFieldUpdateOperationsInput | string | null
+    walletId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    transactionHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    paymentAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    refunded?: BoolFieldUpdateOperationsInput | boolean
+    usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type CampaignUpsertWithoutCurrencyConversionsInput = {
+    update: XOR<CampaignUpdateWithoutCurrencyConversionsInput, CampaignUncheckedUpdateWithoutCurrencyConversionsInput>
+    create: XOR<CampaignCreateWithoutCurrencyConversionsInput, CampaignUncheckedCreateWithoutCurrencyConversionsInput>
+    where?: CampaignWhereInput
+  }
+
+  export type CampaignUpdateToOneWithWhereWithoutCurrencyConversionsInput = {
+    where?: CampaignWhereInput
+    data: XOR<CampaignUpdateWithoutCurrencyConversionsInput, CampaignUncheckedUpdateWithoutCurrencyConversionsInput>
+  }
+
+  export type CampaignUpdateWithoutCurrencyConversionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    goal?: FloatFieldUpdateOperationsInput | number
+    raised?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutCampaignsNestedInput
+    donations?: DonationUpdateManyWithoutCampaignNestedInput
+    updates?: CampaignUpdateUpdateManyWithoutCampaignNestedInput
+    payouts?: CampaignPayoutUpdateManyWithoutCampaignNestedInput
+  }
+
+  export type CampaignUncheckedUpdateWithoutCurrencyConversionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    goal?: FloatFieldUpdateOperationsInput | number
+    raised?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    donations?: DonationUncheckedUpdateManyWithoutCampaignNestedInput
+    updates?: CampaignUpdateUncheckedUpdateManyWithoutCampaignNestedInput
+    payouts?: CampaignPayoutUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -16340,6 +18596,8 @@ export namespace Prisma {
     endDate?: Date | string | null
     isActive?: boolean
     category?: string | null
+    targetCurrency?: string
+    creatorWalletAddress?: string | null
   }
 
   export type DonationCreateManyUserInput = {
@@ -16440,9 +18698,12 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     donations?: DonationUpdateManyWithoutCampaignNestedInput
     updates?: CampaignUpdateUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateWithoutUserInput = {
@@ -16457,9 +18718,12 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
     donations?: DonationUncheckedUpdateManyWithoutCampaignNestedInput
     updates?: CampaignUpdateUncheckedUpdateManyWithoutCampaignNestedInput
     payouts?: CampaignPayoutUncheckedUpdateManyWithoutCampaignNestedInput
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateManyWithoutUserInput = {
@@ -16474,6 +18738,8 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     category?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCurrency?: StringFieldUpdateOperationsInput | string
+    creatorWalletAddress?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DonationUpdateWithoutUserInput = {
@@ -16493,6 +18759,7 @@ export namespace Prisma {
     usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
     wallet?: WalletUpdateOneWithoutDonationsNestedInput
     campaign?: CampaignUpdateOneRequiredWithoutDonationsNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationUncheckedUpdateWithoutUserInput = {
@@ -16512,6 +18779,7 @@ export namespace Prisma {
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     refunded?: BoolFieldUpdateOperationsInput | boolean
     usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationUncheckedUpdateManyWithoutUserInput = {
@@ -16593,6 +18861,21 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type CurrencyConversionCreateManyCampaignInput = {
+    id?: string
+    donationId: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type DonationUpdateWithoutCampaignInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
@@ -16610,6 +18893,7 @@ export namespace Prisma {
     usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
     wallet?: WalletUpdateOneWithoutDonationsNestedInput
     user?: UserUpdateOneRequiredWithoutDonationsNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationUncheckedUpdateWithoutCampaignInput = {
@@ -16629,6 +18913,7 @@ export namespace Prisma {
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     refunded?: BoolFieldUpdateOperationsInput | boolean
     usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationUncheckedUpdateManyWithoutCampaignInput = {
@@ -16704,6 +18989,111 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CurrencyConversionUpdateWithoutCampaignInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    donation?: DonationUpdateOneRequiredWithoutCurrencyConversionsNestedInput
+  }
+
+  export type CurrencyConversionUncheckedUpdateWithoutCampaignInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    donationId?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrencyConversionUncheckedUpdateManyWithoutCampaignInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    donationId?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrencyConversionCreateManyDonationInput = {
+    id?: string
+    campaignId: string
+    fromCurrency: string
+    toCurrency: string
+    fromAmount: number
+    toAmount?: number | null
+    exchangeId: string
+    status?: string
+    estimatedCompletionTime?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrencyConversionUpdateWithoutDonationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    campaign?: CampaignUpdateOneRequiredWithoutCurrencyConversionsNestedInput
+  }
+
+  export type CurrencyConversionUncheckedUpdateWithoutDonationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrencyConversionUncheckedUpdateManyWithoutDonationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    campaignId?: StringFieldUpdateOperationsInput | string
+    fromCurrency?: StringFieldUpdateOperationsInput | string
+    toCurrency?: StringFieldUpdateOperationsInput | string
+    fromAmount?: FloatFieldUpdateOperationsInput | number
+    toAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    exchangeId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    estimatedCompletionTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type DonationCreateManyWalletInput = {
     id?: string
     amount: number
@@ -16740,6 +19130,7 @@ export namespace Prisma {
     usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
     user?: UserUpdateOneRequiredWithoutDonationsNestedInput
     campaign?: CampaignUpdateOneRequiredWithoutDonationsNestedInput
+    currencyConversions?: CurrencyConversionUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationUncheckedUpdateWithoutWalletInput = {
@@ -16759,6 +19150,7 @@ export namespace Prisma {
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     refunded?: BoolFieldUpdateOperationsInput | boolean
     usdEquivalent?: NullableFloatFieldUpdateOperationsInput | number | null
+    currencyConversions?: CurrencyConversionUncheckedUpdateManyWithoutDonationNestedInput
   }
 
   export type DonationUncheckedUpdateManyWithoutWalletInput = {

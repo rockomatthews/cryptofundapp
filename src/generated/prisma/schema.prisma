@@ -67,45 +67,49 @@ model VerificationToken {
 
 // Application-specific Models
 model Campaign {
-  id          String           @id @default(cuid())
-  title       String
-  description String           @db.Text
-  goal        Float
-  raised      Float            @default(0)
-  image       String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  endDate     DateTime?
-  isActive    Boolean          @default(true)
-  category    String?
-  userId      String
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  donations   Donation[]
-  updates     CampaignUpdate[]
-  payouts     CampaignPayout[]
+  id                   String               @id @default(cuid())
+  title                String
+  description          String               @db.Text
+  goal                 Float
+  raised               Float                @default(0)
+  image                String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  endDate              DateTime?
+  isActive             Boolean              @default(true)
+  category             String?
+  targetCurrency       String               @default("USD")
+  creatorWalletAddress String?
+  userId               String
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  donations            Donation[]
+  updates              CampaignUpdate[]
+  payouts              CampaignPayout[]
+  currencyConversions  CurrencyConversion[]
 }
 
 model Donation {
-  id              String   @id @default(cuid())
-  amount          Float
-  currency        String   @default("USD")
-  cryptoType      String?
-  walletId        String?
-  wallet          Wallet?  @relation(fields: [walletId], references: [id])
-  message         String?  @db.Text
-  isAnonymous     Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  campaignId      String
-  campaign        Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  transactionHash String?  @unique
-  status          String   @default("pending") // pending, completed, failed
-  paymentAddress  String?
-  paymentId       String?
-  refunded        Boolean  @default(false)
-  usdEquivalent   Float? // USD equivalent at time of donation
+  id                  String               @id @default(cuid())
+  amount              Float
+  currency            String               @default("USD")
+  cryptoType          String?
+  walletId            String?
+  wallet              Wallet?              @relation(fields: [walletId], references: [id])
+  message             String?              @db.Text
+  isAnonymous         Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  userId              String
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaignId          String
+  campaign            Campaign             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  transactionHash     String?              @unique
+  status              String               @default("pending") // pending, completed, failed
+  paymentAddress      String?
+  paymentId           String?
+  refunded            Boolean              @default(false)
+  usdEquivalent       Float? // USD equivalent at time of donation
+  currencyConversions CurrencyConversion[]
 }
 
 model Wallet {
@@ -140,4 +144,22 @@ model CampaignPayout {
   status        String   @default("processing")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model CurrencyConversion {
+  id                      String    @id @default(cuid())
+  donationId              String
+  donation                Donation  @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  campaignId              String
+  campaign                Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  fromCurrency            String
+  toCurrency              String
+  fromAmount              Float
+  toAmount                Float?
+  exchangeId              String
+  status                  String    @default("processing") // processing, completed, failed
+  estimatedCompletionTime DateTime?
+  completedAt             DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 }

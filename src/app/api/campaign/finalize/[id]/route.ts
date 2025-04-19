@@ -8,10 +8,10 @@ import { createWithdrawal } from '@/lib/cryptoprocessing/index';
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const campaignId = params.id;
+    const { id: campaignId } = await params;
     
     // Check if campaign exists and has ended
     const campaign = await prisma.campaign.findUnique({

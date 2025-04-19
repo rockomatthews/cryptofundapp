@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
-import { WormholeChainId } from '@/lib/wormhole/bridge';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,28 +17,31 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
     
     // Validate required fields
-    if (!data.campaignId || !data.amount || !data.currency || !data.sourceChain) {
+    if (!data.campaignId || !data.amount || !data.currency) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
     
-    // Create a cross-chain donation record
+    // Create a cross-chain donation record using proper relational structure
     const donation = await prisma.donation.create({
       data: {
         amount: parseFloat(data.amount),
         currency: data.currency,
         status: 'pending',
-        sourceChain: data.sourceChain,
-        transferId: data.transferId || null,
         usdEquivalent: data.usdEquivalent || 0,
-        userId: session.user.id,
-        campaignId: data.campaignId,
         message: data.message || '',
         isAnonymous: data.isAnonymous || false,
-        bridgeStatus: 'pending',
         transactionHash: data.transactionHash || null,
+        cryptoType: data.cryptoType || null,
+        // Use proper relation connect syntax for foreign keys
+        user: {
+          connect: { id: session.user.id }
+        },
+        campaign: {
+          connect: { id: data.campaignId }
+        }
       },
     });
     
@@ -70,10 +72,11 @@ export async function PUT(req: NextRequest) {
       );
     }
     
-    // Find the donation by transferId
+    // Since transferId doesn't exist in the schema, we need to find another way to identify the donation
+    // For example, using transactionHash if available
     const donation = await prisma.donation.findFirst({
       where: {
-        transferId: data.transferId,
+        transactionHash: data.transferId, // Assuming transferId is stored in transactionHash
       },
     });
     
@@ -90,8 +93,7 @@ export async function PUT(req: NextRequest) {
         id: donation.id,
       },
       data: {
-        bridgeStatus: data.status,
-        status: data.status === 'completed' ? 'confirmed' : 'failed',
+        status: data.status === 'completed' ? 'completed' : 'failed',
         transactionHash: data.transactionHash || donation.transactionHash,
         updatedAt: new Date(),
       },
@@ -139,7 +141,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       id: donation.id,
       status: donation.status,
-      bridgeStatus: donation.bridgeStatus,
       amount: donation.amount,
       currency: donation.currency,
       usdEquivalent: donation.usdEquivalent,

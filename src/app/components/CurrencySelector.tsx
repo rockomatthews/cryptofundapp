@@ -4,13 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   TextField, 
-  Grid, 
   Paper, 
   Typography, 
   InputAdornment 
 } from '@mui/material';
+import { Grid } from './GridFix';
 import { SUPPORTED_CURRENCIES } from '@/lib/wormhole/bridge';
-import { getTokenPrice } from '@/lib/solana/jupiter';
 
 interface CurrencySelectorProps {
   initialValue: string;
@@ -38,12 +37,9 @@ const CurrencySelector = ({ initialValue, onChange }: CurrencySelectorProps) => 
 
       try {
         // In a real implementation, we would use the token price from an API
-        // For this example, we'll use a placeholder
-        const tokenInfo = SUPPORTED_CURRENCIES[selectedCurrency as keyof typeof SUPPORTED_CURRENCIES];
-        const tokenAddress = tokenInfo.wrappedSolanaAddress;
+        // For this example, we'll use a placeholder directly
         
-        // This is just a placeholder - in reality, this would call getTokenPrice
-        // const price = await getTokenPrice(tokenAddress);
+        // This is just a placeholder price function
         const price = getPlaceholderPrice(selectedCurrency);
         
         const parsedAmount = parseFloat(amount);

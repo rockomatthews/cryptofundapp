@@ -12,6 +12,28 @@ const programIDL = {
 // Program ID should match the ID in our smart contract
 const PROGRAM_ID = new PublicKey('8tPzm9ZtpPURBFGNXzFGJAPe2Q7JFMRu9YtEQTywCE2b');
 
+// Create an interface for the campaign account data
+interface CampaignAccount {
+  creator: PublicKey;
+  title: string;
+  description: string;
+  name: string;
+  goalAmountUsd: { 
+    toArray: (endian: string, length: number) => Uint8Array;
+    toNumber: () => number;
+  };
+  deadline: { 
+    toNumber: () => number 
+  };
+  totalRaisedUsd: { 
+    toArray: (endian: string, length: number) => Uint8Array;
+    toNumber: () => number;
+  };
+  targetCurrency: PublicKey;
+  isActive: boolean;
+  isSuccessful: boolean;
+}
+
 // Helper class to interact with our Solana program
 export class CampaignClient {
   private program: anchor.Program;
@@ -31,6 +53,12 @@ export class CampaignClient {
     this.program = new anchor.Program(programIDL as anchor.Idl, PROGRAM_ID, provider);
   }
 
+  // Helper function to get the wallet public key safely
+  private getWalletPublicKey(): PublicKey {
+    return this.program.provider.publicKey || 
+           (this.program.provider as any).wallet?.publicKey;
+  }
+
   // Create a new campaign
   async createCampaign(
     name: string,
@@ -39,7 +67,7 @@ export class CampaignClient {
     durationDays: number,
     targetCurrency: PublicKey
   ) {
-    const creator = this.program.provider.wallet.publicKey;
+    const creator = this.getWalletPublicKey();
     
     // Calculate deadline timestamp
     const now = Math.floor(Date.now() / 1000);
@@ -92,12 +120,12 @@ export class CampaignClient {
     amount: number,
     tokenMint: PublicKey
   ) {
-    const donor = this.program.provider.wallet.publicKey;
+    const donor = this.getWalletPublicKey();
     const campaign = new PublicKey(campaignAddress);
     
     try {
       // Get campaign data
-      const campaignAccount = await this.program.account.campaign.fetch(campaign);
+      const campaignAccount = await this.program.account.campaign.fetch(campaign) as unknown as CampaignAccount;
       
       // Find donor token account for the given mint
       const donorTokenAccount = await this.findTokenAccount(donor, tokenMint);
@@ -165,7 +193,7 @@ export class CampaignClient {
     try {
       const campaign = await this.program.account.campaign.fetch(
         new PublicKey(campaignAddress)
-      );
+      ) as unknown as CampaignAccount;
       
       return {
         creator: campaign.creator.toString(),

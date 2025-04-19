@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "src/solana/tests/**/*",
+    "**/tests/**/*",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+} 

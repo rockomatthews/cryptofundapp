@@ -1,22 +1,20 @@
-import React from 'react';
+'use client';
+
 import { 
   Box, 
   Container, 
-  Typography, 
-  Grid,
-  TextField,
-  InputAdornment,
-  MenuItem,
-  Select,
+  MenuItem, 
+  Select, 
+  TextField, 
+  Typography,
   FormControl,
   InputLabel,
-  Pagination,
-  Stack,
   Chip,
-  IconButton
+  InputAdornment,
+  Pagination
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import { Grid } from '../components/GridFix';
+import { Search as SearchIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CampaignCard from '../components/CampaignCard';
@@ -179,7 +177,7 @@ export default function Explore() {
             
             <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               <Typography variant="body2" color="text.secondary" sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
-                <FilterListIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <FilterIcon fontSize="small" sx={{ mr: 0.5 }} />
                 Active Filters:
               </Typography>
               <Chip label="Social Impact" onDelete={() => {}} size="small" />

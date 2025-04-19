@@ -1,5 +1,15 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { TokenInfo } from '@solana/spl-token-registry';
+// Define TokenInfo interface locally instead of importing it
+interface TokenInfo {
+  chainId: number;
+  address: string;
+  name: string;
+  decimals: number;
+  symbol: string;
+  logoURI?: string;
+  tags?: string[];
+  extensions?: Record<string, unknown>;
+}
 import fetch from 'cross-fetch';
 
 // Jupiter API endpoints
