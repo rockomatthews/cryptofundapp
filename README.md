@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+# CryptoFund - Decentralized Crowdfunding Platform
+
+A blockchain-powered crowdfunding platform that allows users to create campaigns and receive funding in various cryptocurrencies. The platform uses smart contracts to ensure that funds are only released to creators when funding goals are met, otherwise they are returned to donors.
+
+## Features
+
+- **Multi-Currency Donations**: Accept donations in various cryptocurrencies
+- **Goal-Based Funding**: Funds are only released to creators when the USD-equivalent goal is met
+- **Automatic Currency Conversion**: Converts all donated currencies to the creator's preferred currency
+- **Solana Smart Contracts**: Utilizes Solana for low transaction fees and fast settlement
+
 ## Getting Started
 
 First, run the development server:
@@ -16,9 +27,30 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Solana Smart Contract
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project includes a Solana smart contract built with Anchor framework. The contract handles:
+
+1. Campaign creation and management
+2. Donation collection and tracking
+3. Automatic refunds if goals aren't met
+4. Currency conversion when goals are met
+
+### Building and Deploying the Contract
+
+To build the Solana smart contract:
+
+```bash
+npm run solana:build
+```
+
+To deploy the contract to Solana devnet:
+
+```bash
+npm run solana:deploy
+```
+
+You'll need the Solana CLI and Anchor installed on your system. Make sure you have a funded Solana wallet configured at `~/.config/solana/id.json`.
 
 ## Learn More
 
@@ -27,7 +59,11 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To learn more about Solana development:
+
+- [Solana Documentation](https://docs.solana.com/) - Official Solana docs
+- [Anchor Framework](https://www.anchor-lang.com/) - Framework for building Solana programs
+- [Jupiter Aggregator](https://jup.ag/) - DEX aggregator for optimal token swaps
 
 ## Deploy on Vercel
 
