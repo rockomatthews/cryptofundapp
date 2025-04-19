@@ -24,6 +24,20 @@ declare module "next-auth/jwt" {
   }
 }
 
+// Log the current environment for debugging
+console.log("AUTH DEBUG - Environment:", {
+  NODE_ENV: process.env.NODE_ENV,
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  VERCEL_URL: process.env.VERCEL_URL,
+});
+
+// Calculate the base URL based on environment
+const baseUrl = process.env.VERCEL_URL 
+  ? `https://${process.env.VERCEL_URL}` 
+  : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
+console.log("AUTH DEBUG - Using base URL:", baseUrl);
+
 // NextAuth configuration with Prisma database adapter
 const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -44,6 +58,19 @@ const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
+  // Force the correct redirect URI
+  useSecureCookies: !!process.env.VERCEL_URL,
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: !!process.env.VERCEL_URL
+      }
+    }
+  },
   callbacks: {
     async session({ session, token, user }: { session: Session; token: JWT; user?: User }): Promise<Session> {
       // Add the user ID to the session
@@ -54,8 +81,13 @@ const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async signIn({ user }) {
-      console.log("Sign-in callback called with user:", JSON.stringify(user));
+    async signIn({ user, account, profile }) {
+      console.log("AUTH DEBUG - Sign-in callback called with:", {
+        user: user.email,
+        provider: account?.provider,
+        callbackUrl: `${baseUrl}/api/auth/callback/${account?.provider}`
+      });
+      
       // Ensure user is saved to the database, even with JWT strategy
       if (user.email) {
         try {
