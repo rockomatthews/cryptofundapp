@@ -22,6 +22,13 @@ interface ExchangeRateResponse {
   rate: number;
 }
 
+interface PaymentStatusResponse {
+  status: 'pending' | 'completed' | 'failed';
+  amount: string;
+  currency: string;
+  txHash?: string;
+}
+
 /**
  * Create a new cryptocurrency payment
  */
@@ -56,6 +63,32 @@ export async function createPayment(
   } catch (error) {
     console.error('Error creating payment with CryptoProcessing:', error);
     throw new Error('Failed to create payment');
+  }
+}
+
+/**
+ * Check the status of a payment
+ */
+export async function checkPaymentStatus(paymentId: string): Promise<PaymentStatusResponse> {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/payments/${paymentId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`,
+        },
+      }
+    );
+
+    return {
+      status: mapPaymentStatus(response.data.status),
+      amount: response.data.amount,
+      currency: response.data.currency,
+      txHash: response.data.transaction_hash,
+    };
+  } catch (error) {
+    console.error('Error checking payment status from CryptoProcessing:', error);
+    throw new Error('Failed to check payment status');
   }
 }
 
@@ -148,4 +181,20 @@ export async function createExchange(
     console.error('Error creating exchange with CryptoProcessing:', error);
     throw new Error('Failed to create exchange');
   }
+}
+
+// Helper function to map API status to our application status
+function mapPaymentStatus(apiStatus: string): 'pending' | 'completed' | 'failed' {
+  const statusMap: Record<string, 'pending' | 'completed' | 'failed'> = {
+    'new': 'pending',
+    'pending': 'pending',
+    'processing': 'pending',
+    'completed': 'completed',
+    'confirmed': 'completed',
+    'failed': 'failed',
+    'canceled': 'failed',
+    'error': 'failed'
+  };
+  
+  return statusMap[apiStatus.toLowerCase()] || 'pending';
 } 
