@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { createPayment } from '@/lib/cryptoprocessing';
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     const { 
       title, 
       category, 
-      currency, 
+      currency = "USD", // Default to USD if not provided
       amount, 
       duration,  
       shortDescription, 
@@ -33,7 +34,8 @@ export async function POST(req: NextRequest) {
       cryptoUsagePlan, 
       creatorName, 
       contactEmail,
-      socialMedia 
+      socialMedia,
+      paymentDetails // This would include crypto payment info
     } = body;
 
     // Validate required fields
@@ -70,6 +72,36 @@ ${website ? `Website: ${website}` : ''}
 ${socialMedia ? `Social Media: ${socialMedia}` : ''}
 `;
 
+    // Check if payment is required (in production)
+    if (process.env.NODE_ENV === 'production' && !paymentDetails?.confirmed) {
+      // Create a payment for $10 using CryptoProcessing API
+      try {
+        const callbackUrl = `${process.env.NEXTAUTH_URL || 'https://www.cryptostarter.app'}/api/campaign/payment-callback`;
+        const payment = await createPayment(
+          10,
+          'USD',
+          callbackUrl,
+          {
+            userId,
+            campaignTitle: title
+          }
+        );
+        
+        // Return payment info to the client for processing
+        return NextResponse.json({ 
+          requiresPayment: true,
+          paymentInfo: payment,
+          message: 'Please complete the $10 campaign creation payment'
+        });
+      } catch (paymentError) {
+        console.error('Payment creation error:', paymentError);
+        return NextResponse.json(
+          { error: 'Failed to create payment for campaign fee' },
+          { status: 500 }
+        );
+      }
+    }
+
     // Create the campaign in the database
     const campaign = await prisma.campaign.create({
       data: {
@@ -82,6 +114,7 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
         isActive: true,
         category,
         userId, // Link the campaign to the user
+        targetCurrency: currency || "USD", // Use the provided currency or default
         // Add campaign update with crypto usage plan
         updates: {
           create: {

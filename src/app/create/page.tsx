@@ -152,6 +152,9 @@ export default function CreateCampaign() {
     socialMedia: ''
   });
   
+  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState('pending');
+  
   // Handle profile picture upload click
   const handleUploadClick = () => {
     if (fileInputRef.current) {
@@ -291,9 +294,12 @@ export default function CreateCampaign() {
       
       const data = await response.json();
       
-      if (!response.ok) {
-        console.error('Error response:', data);
-        throw new Error(data.error || 'Failed to create campaign');
+      // Check if payment is required
+      if (data.requiresPayment && data.paymentInfo) {
+        setPaymentInfo(data.paymentInfo);
+        // Show payment information to the user
+        // You would render a payment component here
+        return;
       }
       
       // Show success message
@@ -670,6 +676,76 @@ export default function CreateCampaign() {
         message={successMessage}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
+
+      {paymentInfo && (
+        <Box sx={{ mt: 4, p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+          <Typography variant="h6" gutterBottom>
+            Campaign Creation Fee: $10
+          </Typography>
+          <Typography variant="body1" paragraph>
+            Please send the payment to the following address:
+          </Typography>
+          <Typography variant="body2" sx={{ fontFamily: 'monospace', my: 2, p: 2, bgcolor: 'background.paper' }}>
+            {paymentInfo.address}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Payment ID: {paymentInfo.paymentId}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Status: {paymentInfo.status}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            onClick={() => {
+              // Poll payment status every 10 seconds
+              const checkPayment = async () => {
+                try {
+                  const response = await fetch(`/api/payment/status?id=${paymentInfo.paymentId}`);
+                  const data = await response.json();
+                  
+                  setPaymentStatus(data.status);
+                  
+                  if (data.status === 'completed') {
+                    // Complete campaign creation with payment confirmation
+                    const finalResponse = await fetch('/api/campaign', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        ...formData,
+                        paymentDetails: {
+                          confirmed: true,
+                          paymentId: paymentInfo.paymentId
+                        }
+                      }),
+                    });
+                    
+                    const finalData = await finalResponse.json();
+                    
+                    if (finalData.success) {
+                      // Redirect to the created campaign
+                      router.push(`/campaign/${finalData.campaign.id}`);
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error checking payment status:', error);
+                }
+              };
+              
+              checkPayment();
+              const interval = setInterval(checkPayment, 10000);
+              
+              // Clear interval after 15 minutes
+              setTimeout(() => clearInterval(interval), 15 * 60 * 1000);
+            }}
+          >
+            Check Payment Status
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 } 
