@@ -5,6 +5,18 @@ import prisma from '@/lib/prisma';
 import { JWT } from 'next-auth/jwt';
 import { Adapter } from 'next-auth/adapters';
 
+// Extend the built-in session and JWT types
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    }
+  }
+}
+
 // NextAuth configuration with Prisma database adapter
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
