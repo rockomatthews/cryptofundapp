@@ -150,8 +150,7 @@ export default function CreateCampaign() {
     cryptoUsagePlan: '',
     creatorName: '',
     contactEmail: '',
-    socialMedia: '',
-    creatorWalletAddress: ''
+    socialMedia: ''
   });
   
   const [paymentInfo, setPaymentInfo] = useState<{
@@ -303,8 +302,23 @@ export default function CreateCampaign() {
       // Check if payment is required
       if (data.requiresPayment && data.paymentInfo) {
         setPaymentInfo(data.paymentInfo);
-        // Show payment information to the user
-        // You would render a payment component here
+        
+        // Show wallet setup notice if needed
+        if (data.needsWalletSetup) {
+          toast('Important: You need to set up your wallet in your profile to receive funds');
+        }
+        
+        return;
+      }
+      
+      // Show wallet setup notice if needed
+      if (data.needsWalletSetup) {
+        toast('Important: Please set up your wallet address in your profile to receive funds for this campaign');
+        
+        // Redirect to profile edit page after a short delay
+        setTimeout(() => {
+          router.push('/profile/edit');
+        }, 5000);
         return;
       }
       
@@ -597,19 +611,6 @@ export default function CreateCampaign() {
                     placeholder="you@example.com"
                     value={formData.contactEmail}
                     onChange={handleInputChange}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="creator-wallet-address"
-                    name="creatorWalletAddress"
-                    label="Wallet Address for Receiving Funds"
-                    placeholder="Your wallet address for receiving donations"
-                    value={formData.creatorWalletAddress}
-                    onChange={handleInputChange}
-                    helperText="This address will be used to receive funds from your campaign"
                   />
                 </Grid>
                 <Grid item xs={12}>

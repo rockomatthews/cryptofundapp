@@ -36,8 +36,7 @@ export async function POST(req: NextRequest) {
       creatorName, 
       contactEmail,
       socialMedia,
-      paymentDetails, // This would include crypto payment info
-      creatorWalletAddress // Added creator's wallet address for receiving donations
+      paymentDetails // This would include crypto payment info
     } = body;
 
     // Validate required fields
@@ -56,13 +55,20 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check if wallet address is provided
-    if (!creatorWalletAddress) {
-      return NextResponse.json({ 
-        error: 'Creator wallet address is required to receive funds',
-        missingField: 'creatorWalletAddress'
-      }, { status: 400 });
-    }
+    // Get the user's wallet address from their profile
+    const userWallet = await prisma.wallet.findFirst({
+      where: { 
+        userId,
+        walletType: currency // Try to find a wallet of the same currency type as the campaign
+      }
+    });
+
+    // If no wallet found for the specific currency, try to find any wallet
+    const creatorWalletAddress = userWallet?.address || 
+      (await prisma.wallet.findFirst({ where: { userId } }))?.address;
+    
+    // If no wallet address is available, create a pending campaign and notify user
+    const needsWalletSetup = !creatorWalletAddress;
 
     // Calculate end date based on duration (in days)
     const endDate = new Date();
@@ -107,7 +113,8 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
           requiresPayment: true,
           paymentInfo: payment,
           destinationWallet: receivingWalletAddress,
-          message: `Please complete the $${CAMPAIGN_CREATION_FEE_USD} campaign creation payment`
+          message: `Please complete the $${CAMPAIGN_CREATION_FEE_USD} campaign creation payment`,
+          needsWalletSetup
         });
       } catch (paymentError) {
         console.error('Payment creation error:', paymentError);
@@ -131,7 +138,7 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
         category,
         userId, // Link the campaign to the user
         targetCurrency: currency || "USD", // Use the provided currency or default
-        creatorWalletAddress, // Store the creator's wallet address for receiving donations
+        creatorWalletAddress, // Use the wallet address from the user's profile
         // Add campaign update with crypto usage plan
         updates: {
           create: {
@@ -147,8 +154,9 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Campaign created successfully', 
-      campaign 
+      message: needsWalletSetup ? 'Campaign created, but you need to set up a wallet to receive funds' : 'Campaign created successfully', 
+      campaign,
+      needsWalletSetup
     });
     
   } catch (error) {
