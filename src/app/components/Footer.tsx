@@ -52,6 +52,9 @@ const Footer = () => {
             <Link href="/terms" color="inherit" display="block" sx={{ mb: 1 }}>
               Terms of Service
             </Link>
+            <Link href="/privacy" color="inherit" display="block" sx={{ mb: 1 }}>
+              Privacy Policy
+            </Link>
           </Grid>
           <Grid size={{ xs: 12, sm: 2 }}>
             <Typography variant="subtitle1" color="text.primary" gutterBottom>

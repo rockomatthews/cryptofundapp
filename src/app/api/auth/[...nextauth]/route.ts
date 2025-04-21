@@ -29,6 +29,9 @@ console.log("AUTH DEBUG - Environment:", {
   NODE_ENV: process.env.NODE_ENV,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   VERCEL_URL: process.env.VERCEL_URL,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? "Set" : "Not set",
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? "Set" : "Not set",
+  DATABASE_URL: process.env.DATABASE_URL ? "Set" : "Not set",
 });
 
 // Calculate the base URL based on environment
@@ -38,9 +41,19 @@ const baseUrl = process.env.VERCEL_URL
 
 console.log("AUTH DEBUG - Using base URL:", baseUrl);
 
-// NextAuth configuration with Prisma database adapter
+// Create auth options, using try/catch to handle potential database issues
+let adapter;
+try {
+  adapter = PrismaAdapter(prisma) as Adapter;
+  console.log("AUTH DEBUG - Prisma adapter initialized successfully");
+} catch (error) {
+  console.error("AUTH DEBUG - Failed to initialize Prisma adapter:", error);
+  adapter = undefined;
+}
+
+// NextAuth configuration with optional Prisma database adapter
 const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
+  adapter: adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -54,7 +67,8 @@ const authOptions: NextAuthOptions = {
     error: '/auth/error',
   },
   session: {
-    strategy: 'database',
+    // Use JWT strategy if database is not available
+    strategy: adapter ? 'database' : 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
@@ -73,20 +87,31 @@ const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token, user }: { session: Session; token: JWT; user?: User }): Promise<Session> {
-      // Add the user ID to the session
-      if (session.user && user) {
-        session.user.id = user.id;
-      } else if (session.user && token) {
-        session.user.id = token.sub;
+      try {
+        // Add the user ID to the session
+        if (session.user && user) {
+          session.user.id = user.id;
+        } else if (session.user && token) {
+          session.user.id = token.sub;
+        }
+        return session;
+      } catch (error) {
+        console.error("AUTH DEBUG - Error in session callback:", error);
+        return session;
       }
-      return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       console.log("AUTH DEBUG - Sign-in callback called with:", {
         user: user.email,
         provider: account?.provider,
         callbackUrl: `${baseUrl}/api/auth/callback/${account?.provider}`
       });
+      
+      // If database adapter is not available, just allow sign-in without DB operations
+      if (!adapter) {
+        console.log("AUTH DEBUG - Skipping database operations (no adapter)");
+        return true;
+      }
       
       // Ensure user is saved to the database, even with JWT strategy
       if (user.email) {
@@ -113,17 +138,36 @@ const authOptions: NextAuthOptions = {
           }
           return true;
         } catch (error) {
-          console.error("Error in signIn callback:", error);
-          return true; // Still allow sign in even if DB operations fail
+          console.error("AUTH DEBUG - Error in signIn callback:", error);
+          // Still allow sign in even if DB operations fail
+          return true; 
         }
       }
       return true;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-do-not-use-in-production',
   debug: true,
 };
 
-// Export handlers for GET and POST
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST }; 
+// Export handlers for GET and POST with error handling
+async function auth(req: Request) {
+  try {
+    return await NextAuth(authOptions)(req);
+  } catch (error) {
+    console.error("AUTH DEBUG - NextAuth error:", error);
+    // Return a proper error response
+    return new Response(
+      JSON.stringify({ 
+        error: "Internal Server Error", 
+        message: "Authentication service error" 
+      }),
+      { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      }
+    );
+  }
+}
+
+export { auth as GET, auth as POST }; 
