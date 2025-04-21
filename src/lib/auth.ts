@@ -41,8 +41,20 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token, user }: { session: Session; token: JWT; user?: User }): Promise<Session> {
+      // Ensure the user object exists in the session
+      if (!session.user) {
+        session.user = {
+          id: 'temp-' + Date.now(),
+          name: 'Guest',
+          email: null,
+          image: null
+        };
+        return session;
+      }
+      
       // Add the user ID to the session
-      if (session.user && user) {
+      if (user?.id) {
+        // Case 1: We have a user from the database (database session strategy)
         session.user.id = user.id;
         
         // Get user's wallet addresses if available
@@ -59,9 +71,14 @@ export const authOptions: NextAuthOptions = {
         } catch (error) {
           console.error("Error fetching user wallets:", error);
         }
-      } else if (session.user && token) {
+      } else if (token?.sub) {
+        // Case 2: We have a token with sub (JWT session strategy)
         session.user.id = token.sub;
+      } else {
+        // Case 3: Fallback if neither user nor token has ID
+        session.user.id = session.user.id || `temp-${Date.now()}`;
       }
+      
       return session;
     },
     async signIn({ user }) {

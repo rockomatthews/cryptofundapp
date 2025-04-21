@@ -113,20 +113,28 @@ export default function ProfilePage() {
           setLoading(true);
           const response = await fetch('/api/user/profile');
           
-          if (!response.ok) {
-            throw new Error('Failed to fetch profile data');
+          // Process data even if status code is not 200
+          const userData = await response.json();
+          
+          if (!response.ok && userData.error && !userData.fallback) {
+            throw new Error(userData.error || 'Failed to fetch profile data');
           }
           
-          const userData = await response.json();
+          // If we got fallback data (even with error), use it
           setUser(userData);
           setUserCampaigns(userData.campaigns || []);
         } catch (err) {
           console.error('Error fetching user data:', err);
           setError('Failed to load profile data');
+          
           // Fall back to mock data if API fails
           const mockUser = getMockUser();
           setUser({
             ...mockUser,
+            id: session.user.id || 'temp-id',
+            name: session.user.name || 'User',
+            email: session.user.email || '',
+            image: session.user.image || '',
             walletAddresses: mockUser.walletAddresses || {},
             campaigns: [],
             donations: []

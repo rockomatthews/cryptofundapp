@@ -56,6 +56,20 @@ model User {
   donations     Donation[]
   wallets       Wallet[]
   PaymentRecord PaymentRecord[]
+  profile       UserProfile?
+}
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  bio       String?  @db.Text
+  location  String?
+  website   String?
+  twitter   String?
+  github    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {

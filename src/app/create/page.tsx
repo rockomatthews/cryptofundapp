@@ -288,6 +288,14 @@ export default function CreateCampaign() {
         imageUrl: imageData || ''
       };
       
+      console.log('Submitting campaign with data:', JSON.stringify({
+        title: payload.title,
+        category: payload.category,
+        currency: payload.currency,
+        amount: payload.amount,
+        hasImage: !!payload.imageUrl
+      }));
+      
       // Call API to create a new campaign
       const response = await fetch('/api/campaign', {
         method: 'POST',
@@ -297,14 +305,20 @@ export default function CreateCampaign() {
         body: JSON.stringify(payload),
       });
       
-      const { data } = await response.json();
+      const responseData = await response.json();
+      console.log('Campaign API response:', responseData);
+      
+      if (!response.ok) {
+        throw new Error(responseData.error || 'Failed to create campaign');
+      }
       
       // Check if payment is required
-      if (data.requiresPayment && data.paymentInfo) {
-        setPaymentInfo(data.paymentInfo);
+      if (responseData.requiresPayment && responseData.paymentInfo) {
+        console.log('Payment required for campaign creation');
+        setPaymentInfo(responseData.paymentInfo);
         
         // Show wallet setup notice if needed
-        if (data.needsWalletSetup) {
+        if (responseData.needsWalletSetup) {
           toast('Important: You need to set up your wallet in your profile to receive funds');
         }
         
@@ -312,7 +326,7 @@ export default function CreateCampaign() {
       }
       
       // Show wallet setup notice if needed
-      if (data.needsWalletSetup) {
+      if (responseData.needsWalletSetup) {
         toast('Important: Please set up your wallet address in your profile to receive funds for this campaign');
         
         // Redirect to profile edit page after a short delay
@@ -322,15 +336,23 @@ export default function CreateCampaign() {
         return;
       }
       
-      // Show success message
+      // Campaign created successfully without payment requirement
+      console.log('Campaign created successfully:', responseData.campaign?.id);
       setSuccessMessage('Campaign created successfully! Redirecting to campaign page...');
       
       // Redirect to the newly created campaign page
       setTimeout(() => {
-        router.push(`/campaign/${data.campaign.id}`);
+        if (responseData.campaign?.id) {
+          router.push(`/campaign/${responseData.campaign.id}`);
+        } else {
+          // Redirect to explore page if no campaign ID is available
+          router.push('/explore');
+        }
       }, 2000);
-    } catch {
+    } catch (error) {
+      console.error('Campaign creation error:', error);
       toast.error('Failed to create campaign. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -730,10 +752,10 @@ export default function CreateCampaign() {
                   const data = await response.json();
                   
                   if (data.status === 'completed') {
-                    toast.success('Payment completed! Redirecting to your new campaign...');
+                    toast.success('Payment completed! Redirecting to explore page...');
                     setPaymentInfo({...paymentInfo, status: 'completed'});
                     setTimeout(() => {
-                      router.push('/campaigns');
+                      router.push('/explore');
                     }, 2000);
                   } else {
                     setPaymentInfo({...paymentInfo, status: data.status || 'pending'});

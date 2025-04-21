@@ -44,6 +44,35 @@ interface ApiCredentials {
   // webhookSecret removed as it's not used by CryptoProcessing API
 }
 
+// Define types for wallet providers
+interface EthereumProvider {
+  request: (args: {method: string; params?: any[]}) => Promise<any>;
+  on: (event: string, listener: (...args: any[]) => void) => void;
+}
+
+interface SolanaProvider {
+  connect: () => Promise<{publicKey: {toString: () => string}}>;
+  signTransaction: (transaction: any) => Promise<{serialize: () => Uint8Array}>;
+  sendRawTransaction: (data: Uint8Array) => Promise<string>;
+}
+
+// Define the payment status response type
+interface PaymentStatusResponse {
+  invoice_id: string;
+  status: string;
+  transactions?: Array<{hash: string}>;
+  [key: string]: any; // For other properties that might be in the response
+}
+
+// Create a more specific interface for API responses
+interface ApiResponse {
+  invoice_id?: string;
+  status?: string;
+  transactions?: Array<{hash: string}>;
+  address?: string;
+  [key: string]: unknown;
+}
+
 // Create a singleton class for managing cryptocurrency payments
 class CryptoPaymentProcessor {
   private static instance: CryptoPaymentProcessor;
@@ -53,7 +82,7 @@ class CryptoPaymentProcessor {
   };
   private apiEndpoint: string = 'https://api.cryptoprocessing.io/api/v1';
   private connectedWallets: Map<string, WalletConnection> = new Map();
-  private walletProviders: Map<string, any> = new Map();
+  private walletProviders: Map<string, EthereumProvider | SolanaProvider> = new Map();
 
   private constructor() {
     // Private constructor to enforce singleton pattern
@@ -146,6 +175,10 @@ class CryptoPaymentProcessor {
             currency: 'BTC',
             label: `User-${Date.now()}` // A unique label for this user
           });
+          
+          if (typeof btcAddressResp.address !== 'string') {
+            throw new Error('Invalid BTC address response');
+          }
           
           walletAddress = btcAddressResp.address;
           break;
@@ -429,10 +462,10 @@ class CryptoPaymentProcessor {
    * @param invoiceId CryptoProcessing invoice ID
    * @returns Payment status information
    */
-  private async checkPaymentStatus(invoiceId: string): Promise<any> {
+  private async checkPaymentStatus(invoiceId: string): Promise<PaymentStatusResponse> {
     try {
       const response = await this.cryptoProcessingApiCall(`/invoices/${invoiceId}`, {});
-      return response;
+      return response as PaymentStatusResponse;
     } catch (error) {
       console.error('Error checking payment status:', error);
       throw error;
@@ -466,32 +499,26 @@ class CryptoPaymentProcessor {
   private async cryptoProcessingApiCall(
     endpoint: string, 
     data: Record<string, unknown>
-  ): Promise<Record<string, any>> {
+  ): Promise<ApiResponse> {
     try {
-      // For endpoints that don't need authentication
-      const isPublicEndpoint = endpoint.startsWith('/public/');
-      
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json'
-      };
-      
-      // Add API key for authenticated endpoints
-      if (!isPublicEndpoint) {
-        headers['Authorization'] = `Bearer ${this.apiCredentials.apiKey}`;
-      }
-      
-      const response = await fetch(`${this.apiEndpoint}${endpoint}`, {
+      // Use our proxy API route instead of calling the CryptoProcessing API directly
+      const response = await fetch('/api/crypto-proxy', {
         method: 'POST',
-        headers,
-        body: JSON.stringify(data)
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          endpoint,
+          data
+        })
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
+        const errorData = await response.json();
+        throw new Error(`API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
       }
       
-      return await response.json();
+      return await response.json() as ApiResponse;
     } catch (error) {
       console.error('CryptoProcessing API call failed:', error);
       throw error;
@@ -502,8 +529,8 @@ class CryptoPaymentProcessor {
 // Declare global window types for wallet providers
 declare global {
   interface Window {
-    ethereum?: any;
-    solana?: any;
+    ethereum?: EthereumProvider;
+    solana?: SolanaProvider;
   }
 }
 

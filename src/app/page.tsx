@@ -117,7 +117,7 @@ export default function Home() {
                   width: '100%',
                 }}
               >
-                <Image
+        <Image
                   src="/hero-image.png"
                   alt="Crypto funding illustration"
                   fill

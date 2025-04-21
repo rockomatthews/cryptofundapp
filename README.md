@@ -1,15 +1,156 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-# CryptoFund - Decentralized Crowdfunding Platform
+# CryptoFund - Cryptocurrency Donation Platform
 
-A blockchain-powered crowdfunding platform that allows users to create campaigns and receive funding in various cryptocurrencies. The platform uses smart contracts to ensure that funds are only released to creators when funding goals are met, otherwise they are returned to donors.
+A decentralized crowdfunding platform that enables crypto donations to various campaigns and causes.
 
 ## Features
 
-- **Multi-Currency Donations**: Accept donations in various cryptocurrencies
-- **Goal-Based Funding**: Funds are only released to creators when the USD-equivalent goal is met
-- **Automatic Currency Conversion**: Converts all donated currencies to the creator's preferred currency
-- **Solana Smart Contracts**: Utilizes Solana for low transaction fees and fast settlement
+- Multi-cryptocurrency support (ETH, BTC, USDT, SOL, DOT, ADA)
+- Campaign creation and management
+- Secure wallet connections
+- Real-time donation tracking
+- User authentication via NextAuth
+
+## Technology Stack
+
+- Next.js 14 with App Router
+- TypeScript
+- Material UI
+- NextAuth.js for authentication
+- Prisma for database access
+- CryptoProcessing API for cryptocurrency transactions
+
+## Production Setup
+
+### Environment Variables
+
+Create a `.env` file in the root of your project with the following variables:
+
+```
+# Database
+DATABASE_URL="postgresql://username:password@hostname:port/dbname"
+
+# NextAuth
+NEXTAUTH_URL=https://your-production-domain.com
+NEXTAUTH_SECRET=your-nextauth-secret-key
+
+# Authentication Providers
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+APPLE_CLIENT_ID=your-apple-client-id
+APPLE_CLIENT_SECRET=your-apple-client-secret
+
+# CryptoProcessing API
+CRYPTOPROCESSING_API_KEY=your-cryptoprocessing-api-key
+NEXT_PUBLIC_CRYPTO_PROCESSING_STORE_ID=your-merchant-id
+```
+
+### Database Setup
+
+1. **Prepare your PostgreSQL database**:
+
+   ```bash
+   # Create a new database
+   psql -c "CREATE DATABASE crypto_fund_me"
+   ```
+
+2. **Run database migrations for production**:
+
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+3. **Seed initial data (if needed)**:
+
+   ```bash
+   npx prisma db seed
+   ```
+
+### CORS Configuration
+
+Ensure your server is configured to handle CORS correctly. For Apache, add to your `.htaccess`:
+
+```
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+```
+
+For Nginx:
+
+```
+location / {
+    add_header 'Access-Control-Allow-Origin' '*';
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+    add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization';
+    
+    if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Allow-Origin' '*';
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization';
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Content-Type' 'text/plain charset=UTF-8';
+        add_header 'Content-Length' 0;
+        return 204;
+    }
+}
+```
+
+### Build and Deploy
+
+1. **Build the application**:
+
+   ```bash
+   npm run build
+   ```
+
+2. **Start the production server**:
+
+   ```bash
+   npm start
+   ```
+
+### CryptoProcessing API Configuration
+
+1. Sign up for a [CryptoProcessing](https://cryptoprocessing.io/) account
+2. Create an API key and note your merchant ID
+3. Configure the callback URL in your CryptoProcessing dashboard to point to:
+   ```
+   https://your-production-domain.com/api/donations/callback
+   ```
+
+### Security Considerations
+
+- Ensure your server uses HTTPS
+- Store API keys securely in environment variables
+- Implement rate limiting on API routes
+- Consider implementing IP filtering for admin endpoints
+- Regularly update dependencies
+
+## Troubleshooting
+
+### CORS Issues
+
+If you're experiencing CORS errors with the CryptoProcessing API:
+
+1. Verify your API key is correct
+2. Check that your domain is whitelisted in the CryptoProcessing dashboard
+3. Ensure the proxy API route (`/api/crypto-proxy`) is working correctly
+
+### Wallet Connection Issues
+
+If users can't connect their wallets:
+
+1. Verify browser extension compatibility
+2. Check for console errors related to wallet providers
+3. Ensure wallet providers are properly initializing on the client side
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Getting Started
 

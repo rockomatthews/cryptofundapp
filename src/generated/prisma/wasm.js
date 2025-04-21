@@ -149,6 +149,18 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserProfileScalarFieldEnum = {
+  id: 'id',
+  bio: 'bio',
+  location: 'location',
+  website: 'website',
+  twitter: 'twitter',
+  github: 'github',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+};
+
 exports.Prisma.VerificationTokenScalarFieldEnum = {
   identifier: 'identifier',
   token: 'token',
@@ -271,6 +283,7 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   Session: 'Session',
   User: 'User',
+  UserProfile: 'UserProfile',
   VerificationToken: 'VerificationToken',
   Campaign: 'Campaign',
   Donation: 'Donation',

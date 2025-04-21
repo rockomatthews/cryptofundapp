@@ -30,6 +30,7 @@ interface CampaignData {
   image?: string;
   endDate?: Date;
   category?: string;
+  targetCurrency: string;
   user: { 
     id: string;
     name?: string;
@@ -230,10 +231,10 @@ export default function CampaignClient({ params }: CampaignClientProps) {
                 </Typography>
                 
                 <Typography variant="h4" color="primary" gutterBottom>
-                  {campaign.raised} ETH
+                  {Number(campaign.raised).toFixed(2)} {campaign.targetCurrency || 'ETH'}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                  of {campaign.goal} ETH goal
+                  of {Number(campaign.goal).toFixed(2)} {campaign.targetCurrency || 'ETH'} goal
                 </Typography>
                 
                 <LinearProgress 
@@ -244,7 +245,7 @@ export default function CampaignClient({ params }: CampaignClientProps) {
                 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    {progress}% Funded
+                    {isNaN(progress) ? 0 : progress}% Funded
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {daysLeft > 0 ? `${daysLeft} days left` : 'Campaign ended'}

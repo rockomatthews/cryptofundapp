@@ -125,40 +125,71 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
       }
     }
 
-    // Create the campaign in the database
-    const campaign = await prisma.campaign.create({
-      data: {
-        title,
-        description: fullDescription,
-        goal: parseFloat(amount),
-        raised: 0,
-        image: imageUrl || null,
-        endDate,
-        isActive: true,
-        category,
-        userId, // Link the campaign to the user
-        targetCurrency: currency || "USD", // Use the provided currency or default
-        creatorWalletAddress, // Use the wallet address from the user's profile
-        // Add campaign update with crypto usage plan
-        updates: {
-          create: {
-            title: 'Cryptocurrency Usage Plan',
-            content: cryptoUsagePlan
-          }
-        }
-      },
-      include: {
-        updates: true
-      }
-    });
+    // After parsing the request body, add detailed logging
+    console.log('Campaign creation request received:', JSON.stringify({
+      userId,
+      title: body.title,
+      category: body.category,
+      currency: body.currency || 'USD',
+      hasImage: !!body.imageUrl
+    }));
 
-    return NextResponse.json({ 
-      success: true, 
-      message: needsWalletSetup ? 'Campaign created, but you need to set up a wallet to receive funds' : 'Campaign created successfully', 
-      campaign,
-      needsWalletSetup
-    });
-    
+    // Create the campaign in the database
+    try {
+      console.log('Creating campaign in database:', JSON.stringify({
+        title,
+        category,
+        goal: parseFloat(amount),
+        currency: currency || "USD",
+        hasWalletAddress: !!creatorWalletAddress,
+        needsWalletSetup
+      }));
+      
+      const campaign = await prisma.campaign.create({
+        data: {
+          title,
+          description: fullDescription,
+          goal: parseFloat(amount),
+          raised: 0,
+          image: imageUrl || null,
+          endDate,
+          isActive: true,
+          category,
+          userId, // Link the campaign to the user
+          targetCurrency: currency || "USD", // Use the provided currency or default
+          creatorWalletAddress, // Use the wallet address from the user's profile
+          // Add campaign update with crypto usage plan
+          updates: {
+            create: {
+              title: 'Cryptocurrency Usage Plan',
+              content: cryptoUsagePlan
+            }
+          }
+        },
+        include: {
+          updates: true
+        }
+      });
+      
+      console.log('Campaign created successfully:', JSON.stringify({
+        campaignId: campaign.id,
+        createdAt: campaign.createdAt,
+        userId: campaign.userId
+      }));
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: needsWalletSetup ? 'Campaign created, but you need to set up a wallet to receive funds' : 'Campaign created successfully', 
+        campaign,
+        needsWalletSetup
+      });
+    } catch (dbError) {
+      console.error('Database error creating campaign:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to create campaign in database', details: dbError instanceof Error ? dbError.message : 'Unknown error' },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Error creating campaign:', error);
     return NextResponse.json(

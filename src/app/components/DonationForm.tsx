@@ -11,11 +11,18 @@ import {
   AlertTitle, 
   InputAdornment,
   Divider,
-  CircularProgress
+  CircularProgress,
+  Snackbar
 } from '@mui/material';
 import { Grid } from '../components/GridFix';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { cryptoPaymentProcessor, type PaymentRequest, type WalletConnection } from '../lib/paymentProcessor';
+
+interface CryptoCurrency {
+  symbol: string;
+  name: string;
+  provider: string;
+}
 
 interface DonationFormProps {
   campaignId: string;
@@ -27,32 +34,33 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
   const [amount, setAmount] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [transactionStatus, setTransactionStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [transactionId, setTransactionId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [connectedWallets, setConnectedWallets] = useState<WalletConnection[]>([]);
+  const [errorNotification, setErrorNotification] = useState<string>('');
   
-  // Currencies supported for donations
-  const currencies = [
-    { symbol: 'ETH', name: 'Ethereum' },
-    { symbol: 'BTC', name: 'Bitcoin' },
-    { symbol: 'USDT', name: 'Tether' },
-    { symbol: 'SOL', name: 'Solana' },
-    { symbol: 'DOT', name: 'Polkadot' },
-    { symbol: 'ADA', name: 'Cardano' }
+  // Currencies supported for donations with their providers
+  const currencies: CryptoCurrency[] = [
+    { symbol: 'ETH', name: 'Ethereum', provider: 'metamask' },
+    { symbol: 'BTC', name: 'Bitcoin', provider: 'bitpay' },
+    { symbol: 'USDT', name: 'Tether', provider: 'metamask' },
+    { symbol: 'SOL', name: 'Solana', provider: 'phantom' },
+    { symbol: 'DOT', name: 'Polkadot', provider: 'polkadot-js' },
+    { symbol: 'ADA', name: 'Cardano', provider: 'nami' }
   ];
   
-  // Update connected wallets list
+  // Update connected wallets list on component mount
   useEffect(() => {
-    // In a real app, we'd sync with connected wallets on mount and when they change
-    const wallets = cryptoPaymentProcessor.getConnectedWallets();
-    setConnectedWallets(wallets);
-    
-    // If we have a connected wallet, set it as the selected currency
-    if (wallets.length > 0 && !selectedCurrency) {
-      setSelectedCurrency(wallets[0].walletType);
+    try {
+      const wallets = cryptoPaymentProcessor.getConnectedWallets();
+      setConnectedWallets(wallets);
+    } catch (error) {
+      console.error('Error getting connected wallets:', error);
+      setErrorNotification('Failed to retrieve wallet information. Please refresh the page.');
     }
-  }, [selectedCurrency]);
+  }, []);
   
   const isWalletConnected = (currency: string): boolean => {
     return connectedWallets.some(wallet => wallet.walletType === currency);
@@ -64,7 +72,68 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
   };
   
   const handleCurrencySelect = (currency: string) => {
+    console.log(`Currency selected: ${currency}`);
     setSelectedCurrency(currency);
+    setErrorMessage('');
+    
+    // Also log whether this wallet is connected
+    console.log(`Is wallet connected: ${isWalletConnected(currency)}`);
+  };
+  
+  const connectWallet = async () => {
+    if (!selectedCurrency) return;
+    
+    console.log(`Connecting wallet for: ${selectedCurrency}`);
+    setIsConnecting(true);
+    setErrorMessage('');
+    
+    try {
+      // Find provider name for this currency
+      const currencyData = currencies.find(c => c.symbol === selectedCurrency);
+      if (!currencyData) {
+        throw new Error(`Unknown currency: ${selectedCurrency}`);
+      }
+      
+      console.log(`Using provider: ${currencyData.provider}`);
+      
+      // Connect the wallet
+      const wallet = await cryptoPaymentProcessor.connectWallet(selectedCurrency, currencyData.provider);
+      
+      console.log('Wallet connection result:', wallet);
+      
+      if (wallet) {
+        setConnectedWallets(prev => {
+          // Replace if exists, otherwise add
+          const existing = prev.findIndex(w => w.walletType === selectedCurrency);
+          if (existing >= 0) {
+            const updated = [...prev];
+            updated[existing] = wallet;
+            return updated;
+          } else {
+            return [...prev, wallet];
+          }
+        });
+      } else {
+        throw new Error(`Failed to connect ${selectedCurrency} wallet`);
+      }
+    } catch (error) {
+      console.error(`Failed to connect ${selectedCurrency} wallet:`, error);
+      
+      // More descriptive error messages
+      if (error instanceof Error) {
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+          setErrorMessage(`Connection to ${selectedCurrency} wallet service failed. Please check your internet connection and make sure your browser allows third-party cookies.`);
+        } else if (error.message.includes('not installed')) {
+          setErrorMessage(`${selectedCurrency} wallet extension is not installed. Please install the appropriate wallet extension for ${selectedCurrency}.`);
+        } else {
+          setErrorMessage(error.message);
+        }
+      } else {
+        setErrorMessage(`Failed to connect ${selectedCurrency} wallet. Make sure you have the appropriate wallet extension installed.`);
+      }
+    } finally {
+      setIsConnecting(false);
+    }
   };
   
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +185,16 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
       // Handle donation failure
       console.error('Donation failed:', error);
       setTransactionStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Failed to process donation');
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API error') || error.message.includes('Failed to fetch')) {
+          setErrorMessage('Payment service is temporarily unavailable. Please try again later.');
+        } else {
+          setErrorMessage(error.message);
+        }
+      } else {
+        setErrorMessage('Failed to process donation. Please try again later.');
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -128,6 +206,10 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
     setTransactionStatus('idle');
     setTransactionId('');
     setErrorMessage('');
+  };
+  
+  const handleCloseNotification = () => {
+    setErrorNotification('');
   };
   
   if (transactionStatus === 'success') {
@@ -151,6 +233,13 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
   
   return (
     <Paper sx={{ p: 3, mb: 3 }}>
+      <Snackbar 
+        open={!!errorNotification} 
+        autoHideDuration={6000} 
+        onClose={handleCloseNotification}
+        message={errorNotification}
+      />
+      
       <Alert severity="warning" sx={{ mb: 2 }}>
         <AlertTitle>Important</AlertTitle>
         Your donation will be processed through the CryptoProcessing payment gateway. 
@@ -162,12 +251,17 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
         Support This Campaign
       </Typography>
       
-      {connectedWallets.length === 0 ? (
+      {isConnecting && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          <AlertTitle>No Wallets Connected</AlertTitle>
-          Please connect at least one cryptocurrency wallet from the &quot;Connect Wallet&quot; button in the navigation bar to make a donation.
+          <AlertTitle>Connecting Wallet</AlertTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={20} />
+            <Typography>Please approve the connection request in your wallet extension...</Typography>
+          </Box>
         </Alert>
-      ) : (
+      )}
+      
+      {connectedWallets.length > 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           <AlertTitle>Connected Wallets</AlertTitle>
           You have {connectedWallets.length} wallet(s) connected: {connectedWallets.map(w => w.walletType).join(', ')}
@@ -196,21 +290,19 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
                   sx={{
                     p: 1,
                     textAlign: 'center',
-                    cursor: isConnected ? 'pointer' : 'not-allowed',
+                    cursor: 'pointer',
                     transition: 'all 0.2s',
                     backgroundColor: selectedCurrency === crypto.symbol 
                       ? 'primary.light' 
-                      : isConnected ? 'background.paper' : 'action.disabledBackground',
-                    color: isConnected 
-                      ? (selectedCurrency === crypto.symbol ? 'primary.contrastText' : 'text.primary')
-                      : 'text.disabled',
+                      : 'background.paper',
+                    color: selectedCurrency === crypto.symbol 
+                      ? 'primary.contrastText' 
+                      : 'text.primary',
                     borderColor: selectedCurrency === crypto.symbol ? 'primary.main' : 'divider',
-                    opacity: isConnected ? 1 : 0.6,
                     '&:hover': {
-                      backgroundColor: isConnected 
-                        ? (selectedCurrency === crypto.symbol ? 'primary.light' : 'action.hover')
-                        : 'action.disabledBackground',
-                      transform: isConnected ? 'translateY(-2px)' : 'none',
+                      backgroundColor: selectedCurrency === crypto.symbol ? 'primary.light' : 'action.hover',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 1,
                     },
                     height: '100%',
                     display: 'flex',
@@ -219,7 +311,7 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
                     alignItems: 'center',
                     position: 'relative'
                   }}
-                  onClick={() => isConnected && handleCurrencySelect(crypto.symbol)}
+                  onClick={() => handleCurrencySelect(crypto.symbol)}
                 >
                   <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
                     {crypto.symbol}
@@ -228,7 +320,7 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
                     {crypto.name}
                   </Typography>
                   
-                  {!isConnected && (
+                  {isConnected && (
                     <Box sx={{ 
                       position: 'absolute', 
                       top: 2, 
@@ -236,7 +328,7 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
                       width: 10, 
                       height: 10, 
                       borderRadius: '50%',
-                      bgcolor: 'error.main'
+                      bgcolor: 'success.main'
                     }} />
                   )}
                 </Paper>
@@ -273,16 +365,36 @@ export default function DonationForm({ campaignId, campaignTitle }: DonationForm
         sx={{ mb: 3 }}
       />
       
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        disabled={isProcessing || !selectedCurrency || !amount || !isWalletConnected(selectedCurrency)}
-        onClick={handleDonate}
-        startIcon={isProcessing ? <CircularProgress size={20} color="inherit" /> : <AccountBalanceWalletIcon />}
-      >
-        {isProcessing ? 'Processing...' : `Donate ${amount ? amount : ''} ${selectedCurrency || ''}`}
-      </Button>
+      {selectedCurrency && !isWalletConnected(selectedCurrency) ? (
+        <>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              You need to connect your {selectedCurrency} wallet to continue.
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={connectWallet}
+            startIcon={isConnecting ? <CircularProgress size={20} color="inherit" /> : <AccountBalanceWalletIcon />}
+            disabled={isConnecting}
+          >
+            {isConnecting ? 'Connecting...' : `Connect ${selectedCurrency} Wallet`}
+          </Button>
+        </>
+      ) : (
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          disabled={isProcessing || !selectedCurrency || !amount || !isWalletConnected(selectedCurrency)}
+          onClick={handleDonate}
+          startIcon={isProcessing ? <CircularProgress size={20} color="inherit" /> : <AccountBalanceWalletIcon />}
+        >
+          {isProcessing ? 'Processing...' : `Donate ${amount ? amount : ''} ${selectedCurrency || ''}`}
+        </Button>
+      )}
       
       <Divider sx={{ my: 2 }} />
       
