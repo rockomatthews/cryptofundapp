@@ -1,34 +1,27 @@
-import { PrismaClient } from '../generated/prisma';
-import { withAccelerate } from '@prisma/extension-accelerate';
+import { PrismaClient } from '@prisma/client';
 
 // PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit.
-// Learn more: https://pris.ly/d/help/next-js-best-practices
+// exhausting your database connection limit during hot reloads.
+// See https://pris.ly/d/help/next-js-best-practices
 
-// Define the type for the extended PrismaClient
-type PrismaClientWithExtensions = ReturnType<typeof createPrismaClient>;
+// Add custom methods to PrismaClient if needed
+type PrismaClientWithExtensions = PrismaClient;
 
-// Helper function to create the client with extensions
-function createPrismaClient() {
-  return new PrismaClient().$extends(withAccelerate());
-}
-
-// Create a single PrismaClient instance for the entire app
-let prisma: PrismaClientWithExtensions;
-
-// Add prisma to the global type
+// Declare global to properly handle hot reloads
 declare global {
-  // eslint-disable-next-line no-unused-vars, no-var
+  // eslint-disable-next-line no-var, no-unused-vars
   var prisma: PrismaClientWithExtensions | undefined;
 }
 
+let prisma: PrismaClientWithExtensions;
+
 if (process.env.NODE_ENV === 'production') {
-  // In production, create a new instance each time
-  prisma = createPrismaClient();
+  // In production, use a new instance each time
+  prisma = new PrismaClient();
 } else {
-  // In development, reuse the same instance to avoid too many connections
+  // In development, use a singleton to prevent multiple connections
   if (!global.prisma) {
-    global.prisma = createPrismaClient();
+    global.prisma = new PrismaClient();
   }
   prisma = global.prisma;
 }

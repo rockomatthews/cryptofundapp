@@ -73,6 +73,14 @@ interface ApiResponse {
   [key: string]: unknown;
 }
 
+// Create a custom error type to better handle API errors
+class ApiError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 // Create a singleton class for managing cryptocurrency payments
 class CryptoPaymentProcessor {
   private static instance: CryptoPaymentProcessor;
@@ -280,9 +288,17 @@ class CryptoPaymentProcessor {
         }
       });
       
-      // Extract payment details from the invoice response
+      // Extract and validate payment details from the invoice response
+      if (typeof invoiceResponse.invoice_id !== 'string') {
+        throw new ApiError('Invalid invoice ID received from API');
+      }
       const invoiceId = invoiceResponse.invoice_id;
-      const paymentAddress = invoiceResponse.pay_address;
+      
+      // Ensure paymentAddress is a string
+      if (typeof invoiceResponse.pay_address !== 'string') {
+        throw new ApiError('Invalid payment address received from API');
+      }
+      const paymentAddress: string = invoiceResponse.pay_address;
       
       // Initiate the payment from the user's wallet
       let transactionHash = '';
@@ -362,23 +378,33 @@ class CryptoPaymentProcessor {
     // For ETH, send a direct transaction
     if (currency === 'ETH') {
       const provider = this.walletProviders.get('ETH');
-      const txParams = {
-        from: fromAddress,
-        to: toAddress,
-        value: `0x${Math.floor(amount * 1e18).toString(16)}`, // Convert ETH to wei
-        gas: '0x5208', // 21000 gas
-      };
+      if (!provider) {
+        throw new Error('Ethereum provider not initialized');
+      }
       
-      try {
-        const txHash = await provider.request({
-          method: 'eth_sendTransaction',
-          params: [txParams],
-        });
+      // Check if it's the expected provider type
+      if ('request' in provider) {
+        const ethProvider = provider as EthereumProvider;
+        const txParams = {
+          from: fromAddress,
+          to: toAddress,
+          value: `0x${Math.floor(amount * 1e18).toString(16)}`, // Convert ETH to wei
+          gas: '0x5208', // 21000 gas
+        };
         
-        return txHash;
-      } catch (error) {
-        console.error('Error sending Ethereum transaction:', error);
-        throw error;
+        try {
+          const txHash = await ethProvider.request({
+            method: 'eth_sendTransaction',
+            params: [txParams],
+          });
+          
+          return txHash as string;
+        } catch (error) {
+          console.error('Error sending Ethereum transaction:', error);
+          throw error;
+        }
+      } else {
+        throw new Error('Invalid Ethereum provider type');
       }
     } 
     // For ERC-20 tokens, we need to use the token contract
@@ -425,11 +451,24 @@ class CryptoPaymentProcessor {
         }],
       };
       
-      // Sign and send the transaction
-      const signedTransaction = await window.solana.signTransaction(transaction);
-      const signature = await window.solana.sendRawTransaction(signedTransaction.serialize());
+      // Get the Solana provider
+      const provider = this.walletProviders.get('SOL');
+      if (!provider) {
+        throw new Error('Solana provider not initialized');
+      }
       
-      return signature;
+      // Verify it's the correct provider type
+      if ('signTransaction' in provider && 'sendRawTransaction' in provider) {
+        const solProvider = provider as SolanaProvider;
+        
+        // Sign and send the transaction
+        const signedTransaction = await solProvider.signTransaction(transaction);
+        const signature = await solProvider.sendRawTransaction(signedTransaction.serialize());
+        
+        return signature;
+      } else {
+        throw new Error('Invalid Solana provider type');
+      }
     } catch (error) {
       console.error('Error sending Solana transaction:', error);
       throw error;
@@ -450,7 +489,18 @@ class CryptoPaymentProcessor {
         throw new Error('Bitcoin payment not yet confirmed');
       }
       
-      return response.transactions[0].hash;
+      // Ensure transactions array exists and has at least one entry
+      if (!response.transactions || !Array.isArray(response.transactions) || response.transactions.length === 0) {
+        throw new Error('No transaction hash found in response');
+      }
+      
+      // Ensure the hash property exists and is a string
+      const hash = response.transactions[0]?.hash;
+      if (typeof hash !== 'string') {
+        throw new Error('Invalid transaction hash in response');
+      }
+      
+      return hash;
     } catch (error) {
       console.error('Error checking Bitcoin payment:', error);
       throw error;
