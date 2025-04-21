@@ -14,6 +14,7 @@ export interface PaymentRequest {
   returnUrl: string;
   orderId?: string;
   email?: string;
+  destination?: string; // Destination wallet address
 }
 
 export interface PaymentResponse {
@@ -32,6 +33,15 @@ export interface PaymentResponse {
  */
 export async function createPayment(paymentData: PaymentRequest): Promise<PaymentResponse> {
   try {
+    // Import wallet addresses only when needed to avoid circular dependencies
+    const { PLATFORM_WALLET_ADDRESSES } = await import('@/config/wallet');
+    
+    // If no destination address is provided, use the platform's wallet address for the currency
+    if (!paymentData.destination && paymentData.currency && 
+        PLATFORM_WALLET_ADDRESSES[paymentData.currency.toUpperCase()]) {
+      paymentData.destination = PLATFORM_WALLET_ADDRESSES[paymentData.currency.toUpperCase()];
+    }
+    
     const response = await fetch(`${API_URL}/payments`, {
       method: 'POST',
       headers: {

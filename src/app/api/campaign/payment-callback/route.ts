@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { checkPaymentStatus } from '@/lib/cryptoprocessing';
+import { PLATFORM_FEE_PERCENTAGE } from '@/config/wallet';
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
       ? JSON.parse(metadata) 
       : metadata;
     
-    const { userId, campaignTitle } = parsedMetadata;
+    const { userId, campaignTitle, destinationWallet } = parsedMetadata;
     
     if (!userId) {
       return NextResponse.json(
@@ -37,12 +38,20 @@ export async function POST(req: NextRequest) {
     // Only proceed if payment is successful
     if (paymentStatus.status === 'completed') {
       // Record the payment in the database
-      // This is a simplified example - in a real app, you'd have a proper payments table
-      await prisma.user.update({
-        where: { id: userId },
+      await prisma.paymentRecord.create({
         data: {
-          // You would update user or add a record in a payments table
-          // For now, we're just logging this
+          paymentId: payment_id,
+          amount: parseFloat(paymentStatus.amount),
+          currency: paymentStatus.currency,
+          status: 'completed',
+          type: 'campaign_creation_fee',
+          userId,
+          destinationAddress: destinationWallet,
+          transactionHash: paymentStatus.txHash || '',
+          metadata: JSON.stringify({
+            campaignTitle,
+            platformFeePercentage: PLATFORM_FEE_PERCENTAGE
+          })
         }
       });
       
@@ -50,7 +59,8 @@ export async function POST(req: NextRequest) {
         success: true, 
         message: 'Payment processed successfully',
         paymentId: payment_id,
-        status: paymentStatus.status
+        status: paymentStatus.status,
+        destinationWallet
       });
     } else {
       return NextResponse.json({

@@ -20,6 +20,7 @@ import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import WalletConnectButton from './WalletConnectButton';
 
 const Navbar = () => {
   const theme = useTheme();
@@ -103,7 +104,11 @@ const Navbar = () => {
                 <MenuItem onClick={handleClose} component={Link} href="/explore">Explore</MenuItem>
                 <MenuItem onClick={handleClose} component={Link} href="/create">Create Campaign</MenuItem>
                 <MenuItem onClick={handleClose} component={Link} href="/profile">My Profile</MenuItem>
-                
+                <Divider />
+                <MenuItem>
+                  <WalletConnectButton />
+                </MenuItem>
+                <Divider />
                 {isAuthenticated ? (
                   [
                     <MenuItem key="profile" onClick={handleClose} component={Link} href="/profile">
@@ -138,6 +143,8 @@ const Navbar = () => {
               <Button color="inherit" component={Link} href="/profile">
                 My Profile
               </Button>
+              
+              <WalletConnectButton />
               
               {isAuthenticated ? (
                 <>

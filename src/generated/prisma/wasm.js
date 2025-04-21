@@ -236,6 +236,21 @@ exports.Prisma.CurrencyConversionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PaymentRecordScalarFieldEnum = {
+  id: 'id',
+  paymentId: 'paymentId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  type: 'type',
+  transactionHash: 'transactionHash',
+  destinationAddress: 'destinationAddress',
+  userId: 'userId',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -262,7 +277,8 @@ exports.Prisma.ModelName = {
   Wallet: 'Wallet',
   CampaignUpdate: 'CampaignUpdate',
   CampaignPayout: 'CampaignPayout',
-  CurrencyConversion: 'CurrencyConversion'
+  CurrencyConversion: 'CurrencyConversion',
+  PaymentRecord: 'PaymentRecord'
 };
 
 /**

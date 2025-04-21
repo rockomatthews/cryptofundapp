@@ -43,18 +43,19 @@ model Session {
 }
 
 model User {
-  id            String     @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  email         String?    @unique
+  email         String?         @unique
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   accounts      Account[]
   sessions      Session[]
   campaigns     Campaign[]
   donations     Donation[]
   wallets       Wallet[]
+  PaymentRecord PaymentRecord[]
 }
 
 model VerificationToken {
@@ -162,4 +163,21 @@ model CurrencyConversion {
   completedAt             DateTime?
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
+}
+
+// For tracking payments like campaign creation fees, platform fees, etc.
+model PaymentRecord {
+  id                 String   @id @default(cuid())
+  paymentId          String   @unique // From payment processor
+  amount             Float
+  currency           String
+  status             String // completed, failed, pending
+  type               String // campaign_creation_fee, platform_fee, etc.
+  transactionHash    String? // Blockchain transaction hash
+  destinationAddress String // Wallet address receiving the payment
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metadata           String?  @db.Text // JSON string with additional data
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }

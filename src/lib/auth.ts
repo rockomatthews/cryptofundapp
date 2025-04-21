@@ -13,6 +13,8 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      walletAddress?: string | null;
+      walletType?: string | null;
     }
   }
 }
@@ -42,6 +44,21 @@ export const authOptions: NextAuthOptions = {
       // Add the user ID to the session
       if (session.user && user) {
         session.user.id = user.id;
+        
+        // Get user's wallet addresses if available
+        try {
+          const userWallets = await prisma.wallet.findMany({
+            where: { userId: user.id }
+          });
+          
+          if (userWallets && userWallets.length > 0) {
+            // Add the first wallet address to the session for convenience
+            session.user.walletAddress = userWallets[0].address;
+            session.user.walletType = userWallets[0].walletType;
+          }
+        } catch (error) {
+          console.error("Error fetching user wallets:", error);
+        }
       } else if (session.user && token) {
         session.user.id = token.sub;
       }

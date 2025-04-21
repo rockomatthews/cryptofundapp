@@ -28,6 +28,7 @@ import { Grid } from '../components/GridFix';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 // Remove problematic import temporarily
 // import CurrencySelector from '../components/CurrencySelector';
 
@@ -149,11 +150,17 @@ export default function CreateCampaign() {
     cryptoUsagePlan: '',
     creatorName: '',
     contactEmail: '',
-    socialMedia: ''
+    socialMedia: '',
+    creatorWalletAddress: ''
   });
   
-  const [paymentInfo, setPaymentInfo] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState('pending');
+  const [paymentInfo, setPaymentInfo] = useState<{
+    paymentId?: string;
+    status?: string;
+    walletAddress?: string;
+    address?: string;
+    destinationWallet?: string;
+  } | null>(null);
   
   // Handle profile picture upload click
   const handleUploadClick = () => {
@@ -194,7 +201,6 @@ export default function CreateCampaign() {
   // Extract domain name from URL
   const extractDomainName = (url: string) => {
     try {
-      // Add https:// if not included
       let processedUrl = url;
       if (!url.match(/^https?:\/\//i)) {
         processedUrl = 'https://' + url;
@@ -203,7 +209,7 @@ export default function CreateCampaign() {
       const domain = new URL(processedUrl).hostname;
       // Get the domain name without www. and .com/.org/etc.
       return domain.replace(/^www\./i, '').split('.')[0];
-    } catch (error) {
+    } catch {
       // Just return the original text if not a valid URL
       return url;
     }
@@ -292,7 +298,7 @@ export default function CreateCampaign() {
         body: JSON.stringify(payload),
       });
       
-      const data = await response.json();
+      const { data } = await response.json();
       
       // Check if payment is required
       if (data.requiresPayment && data.paymentInfo) {
@@ -309,10 +315,8 @@ export default function CreateCampaign() {
       setTimeout(() => {
         router.push(`/campaign/${data.campaign.id}`);
       }, 2000);
-    } catch (err) {
-      console.error('Error creating campaign:', err);
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to create campaign. Please try again.');
-    } finally {
+    } catch {
+      toast.error('Failed to create campaign. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -596,6 +600,19 @@ export default function CreateCampaign() {
                   />
                 </Grid>
                 <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="creator-wallet-address"
+                    name="creatorWalletAddress"
+                    label="Wallet Address for Receiving Funds"
+                    placeholder="Your wallet address for receiving donations"
+                    value={formData.creatorWalletAddress}
+                    onChange={handleInputChange}
+                    helperText="This address will be used to receive funds from your campaign"
+                  />
+                </Grid>
+                <Grid item xs={12}>
                   <Typography variant="subtitle2" gutterBottom>
                     Social Media Links (Twitter, Discord, GitHub, etc.)
                   </Typography>
@@ -691,9 +708,15 @@ export default function CreateCampaign() {
           <Typography variant="body2" color="text.secondary" gutterBottom>
             Payment ID: {paymentInfo.paymentId}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" gutterBottom>
             Status: {paymentInfo.status}
           </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Destination Wallet: {paymentInfo.destinationWallet || "Platform wallet"}
+          </Typography>
+          <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
+            Once payment is confirmed, your campaign will be created automatically. Payment confirmations typically take 10-30 minutes depending on network congestion.
+          </Alert>
           <Button
             variant="contained"
             color="primary"
@@ -702,36 +725,21 @@ export default function CreateCampaign() {
               // Poll payment status every 10 seconds
               const checkPayment = async () => {
                 try {
-                  const response = await fetch(`/api/payment/status?id=${paymentInfo.paymentId}`);
+                  const response = await fetch(`/api/payment/status?paymentId=${paymentInfo.paymentId}`);
                   const data = await response.json();
                   
-                  setPaymentStatus(data.status);
-                  
                   if (data.status === 'completed') {
-                    // Complete campaign creation with payment confirmation
-                    const finalResponse = await fetch('/api/campaign', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        ...formData,
-                        paymentDetails: {
-                          confirmed: true,
-                          paymentId: paymentInfo.paymentId
-                        }
-                      }),
-                    });
-                    
-                    const finalData = await finalResponse.json();
-                    
-                    if (finalData.success) {
-                      // Redirect to the created campaign
-                      router.push(`/campaign/${finalData.campaign.id}`);
-                    }
+                    toast.success('Payment completed! Redirecting to your new campaign...');
+                    setPaymentInfo({...paymentInfo, status: 'completed'});
+                    setTimeout(() => {
+                      router.push('/campaigns');
+                    }, 2000);
+                  } else {
+                    setPaymentInfo({...paymentInfo, status: data.status || 'pending'});
+                    toast(`Payment status: ${data.status || 'pending'}`);
                   }
-                } catch (error) {
-                  console.error('Error checking payment status:', error);
+                } catch {
+                  toast.error('Failed to check payment status. Please try again.');
                 }
               };
               

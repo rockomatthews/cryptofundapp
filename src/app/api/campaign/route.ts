@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { createPayment } from '@/lib/cryptoprocessing';
+import { PLATFORM_WALLET_ADDRESSES, CAMPAIGN_CREATION_FEE_USD, PAYMENT_SETTINGS } from '@/config/wallet';
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,7 +36,8 @@ export async function POST(req: NextRequest) {
       creatorName, 
       contactEmail,
       socialMedia,
-      paymentDetails // This would include crypto payment info
+      paymentDetails, // This would include crypto payment info
+      creatorWalletAddress // Added creator's wallet address for receiving donations
     } = body;
 
     // Validate required fields
@@ -51,6 +53,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ 
         error: 'Missing required fields', 
         fields: missingFields 
+      }, { status: 400 });
+    }
+
+    // Check if wallet address is provided
+    if (!creatorWalletAddress) {
+      return NextResponse.json({ 
+        error: 'Creator wallet address is required to receive funds',
+        missingField: 'creatorWalletAddress'
       }, { status: 400 });
     }
 
@@ -74,16 +84,21 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
 
     // Check if payment is required (in production)
     if (process.env.NODE_ENV === 'production' && !paymentDetails?.confirmed) {
+      // Determine which platform wallet address to use for receiving the fee
+      // Default to ETH if currency doesn't match available wallets
+      const receivingWalletAddress = PLATFORM_WALLET_ADDRESSES['ETH'];
+      
       // Create a payment for $10 using CryptoProcessing API
       try {
-        const callbackUrl = `${process.env.NEXTAUTH_URL || 'https://www.cryptostarter.app'}/api/campaign/payment-callback`;
+        const callbackUrl = `${PAYMENT_SETTINGS.callbackBaseUrl}/api/campaign/payment-callback`;
         const payment = await createPayment(
-          10,
+          CAMPAIGN_CREATION_FEE_USD, // Use constant from config
           'USD',
           callbackUrl,
           {
             userId,
-            campaignTitle: title
+            campaignTitle: title,
+            destinationWallet: receivingWalletAddress
           }
         );
         
@@ -91,7 +106,8 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
         return NextResponse.json({ 
           requiresPayment: true,
           paymentInfo: payment,
-          message: 'Please complete the $10 campaign creation payment'
+          destinationWallet: receivingWalletAddress,
+          message: `Please complete the $${CAMPAIGN_CREATION_FEE_USD} campaign creation payment`
         });
       } catch (paymentError) {
         console.error('Payment creation error:', paymentError);
@@ -115,6 +131,7 @@ ${socialMedia ? `Social Media: ${socialMedia}` : ''}
         category,
         userId, // Link the campaign to the user
         targetCurrency: currency || "USD", // Use the provided currency or default
+        creatorWalletAddress, // Store the creator's wallet address for receiving donations
         // Add campaign update with crypto usage plan
         updates: {
           create: {

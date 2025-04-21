@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { PLATFORM_WALLET_ADDRESSES, PAYMENT_SETTINGS } from '../config/wallet';
 
 const API_BASE_URL = process.env.CRYPTO_PROCESSING_API_URL || 'https://api.cryptoprocessing.com/v1';
 const API_KEY = process.env.CRYPTO_PROCESSING_API_KEY;
@@ -35,10 +36,18 @@ interface PaymentStatusResponse {
 export async function createPayment(
   amount: number,
   currency: string,
-  callbackUrl: string,
-  metadata: Record<string, any>
+  callbackUrl: string = PAYMENT_SETTINGS.CALLBACK_URL,
+  metadata: Record<string, string | number | boolean>,
+  destinationAddress?: string
 ): Promise<CreatePaymentResponse> {
   try {
+    // Use the provided destination address or fall back to the platform wallet address
+    const recipientAddress = destinationAddress || PLATFORM_WALLET_ADDRESSES[currency];
+    
+    if (!recipientAddress) {
+      throw new Error(`No wallet address configured for currency: ${currency}`);
+    }
+
     const response = await axios.post(
       `${API_BASE_URL}/payments`,
       {
@@ -46,6 +55,9 @@ export async function createPayment(
         currency,
         callback_url: callbackUrl,
         metadata: JSON.stringify(metadata),
+        destination_address: recipientAddress,
+        return_url: PAYMENT_SETTINGS.RETURN_URL,
+        cancel_url: PAYMENT_SETTINGS.CANCEL_URL,
       },
       {
         headers: {
@@ -153,11 +165,15 @@ export async function createExchange(
   fromCurrency: string,
   toCurrency: string,
   amount: number,
-  destinationAddress: string,
-  callbackUrl: string,
-  metadata: Record<string, any>
+  destinationAddress: string = PLATFORM_WALLET_ADDRESSES[toCurrency],
+  callbackUrl: string = PAYMENT_SETTINGS.CALLBACK_URL,
+  metadata: Record<string, string | number | boolean>
 ): Promise<string> {
   try {
+    if (!destinationAddress) {
+      throw new Error(`No wallet address configured for currency: ${toCurrency}`);
+    }
+
     const response = await axios.post(
       `${API_BASE_URL}/exchanges`,
       {
@@ -167,6 +183,8 @@ export async function createExchange(
         destination_address: destinationAddress,
         callback_url: callbackUrl,
         metadata: JSON.stringify(metadata),
+        return_url: PAYMENT_SETTINGS.RETURN_URL,
+        cancel_url: PAYMENT_SETTINGS.CANCEL_URL,
       },
       {
         headers: {
