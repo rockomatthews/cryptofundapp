@@ -47,9 +47,17 @@ export async function POST(
       );
     }
     
+    // Get the campaign record with donations
+    type Donation = {
+      id: string;
+      amount: number;
+      currency: string;
+      // Add other properties as needed
+    };
+
     // Calculate total amount raised
     const totalRaised = campaign.donations.reduce(
-      (sum, donation) => sum + donation.amount,
+      (sum: number, donation: Donation) => sum + donation.amount,
       0
     );
     
