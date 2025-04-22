@@ -13,6 +13,10 @@ export async function GET() {
   // Extract provider IDs from authOptions
   const providerIds = authOptions.providers?.map(p => p.id) || [];
   
+  // Calculate effective URL
+  const effectiveUrl = process.env.NEXTAUTH_URL || 
+                      (process.env.NODE_ENV === 'production' ? 'https://cryptostarter.app' : 'http://localhost:3000');
+  
   // Return sanitized environment info
   return NextResponse.json({
     timestamp: new Date().toISOString(),
@@ -37,7 +41,6 @@ export async function GET() {
       GOOGLE_CLIENT_SECRET_LENGTH: process.env.GOOGLE_CLIENT_SECRET?.length || 0,
       
       // Other environment variables that might affect auth
-      VERCEL_URL: process.env.VERCEL_URL || null,
       VERCEL_ENV: process.env.VERCEL_ENV || null,
       NODE_ENV: process.env.NODE_ENV || null,
       
@@ -48,9 +51,8 @@ export async function GET() {
       AUTH_PAGES: authOptions.pages ? Object.keys(authOptions.pages) : [],
       
       // Computed values
-      EFFECTIVE_URL: process.env.NEXTAUTH_URL || 
-                     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-                     null,
+      EFFECTIVE_URL: effectiveUrl,
+      PRODUCTION_DOMAIN: 'https://cryptostarter.app'
     }
   });
 } 

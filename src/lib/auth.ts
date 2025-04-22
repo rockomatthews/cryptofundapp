@@ -10,7 +10,7 @@ import { Adapter } from 'next-auth/adapters';
 function getBaseUrl() {
   // Priority order:
   // 1. NEXTAUTH_URL (explicitly set)
-  // 2. VERCEL_URL (set by Vercel in production)
+  // 2. Production domain (cryptostarter.app)
   // 3. Fallback to localhost
   
   if (process.env.NEXTAUTH_URL) {
@@ -18,10 +18,11 @@ function getBaseUrl() {
     return process.env.NEXTAUTH_URL;
   }
   
-  // For Vercel deployments
-  if (process.env.VERCEL_URL) {
-    console.log('Using VERCEL_URL:', `https://${process.env.VERCEL_URL}`);
-    return `https://${process.env.VERCEL_URL}`;
+  // For production deployments
+  if (process.env.NODE_ENV === 'production') {
+    const productionUrl = 'https://cryptostarter.app';
+    console.log('Using production URL:', productionUrl);
+    return productionUrl;
   }
   
   // Fallback for local development
@@ -33,7 +34,6 @@ function getBaseUrl() {
 console.log('NextAuth Config Environment:', { 
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   NODE_ENV: process.env.NODE_ENV,
-  VERCEL_URL: process.env.VERCEL_URL,
   BASE_URL: getBaseUrl(),
   GOOGLE_CLIENT_ID_SET: !!process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET_SET: !!process.env.GOOGLE_CLIENT_SECRET
