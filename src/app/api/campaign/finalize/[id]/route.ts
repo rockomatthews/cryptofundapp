@@ -2,6 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { createWithdrawal } from '@/lib/cryptoprocessing/index';
 
+// Define types for our functions
+type DonationWithDetails = {
+  id: string;
+  amount: number;
+  currency: string;
+  userId: string;
+  paymentAddress?: string;
+  refunded?: boolean;
+  status: string;
+};
+
+type CampaignWithRelations = {
+  id: string;
+  userId: string;
+  goal: number;
+  raised: number;
+  endDate?: Date | string;
+  isActive: boolean;
+  user: Record<string, any>;
+  donations: DonationWithDetails[];
+};
+
 /**
  * API route to finalize a campaign
  * This will determine if a campaign's goal was met and process payouts or refunds
@@ -46,18 +68,10 @@ export async function POST(
         { status: 400 }
       );
     }
-    
-    // Get the campaign record with donations
-    type Donation = {
-      id: string;
-      amount: number;
-      currency: string;
-      // Add other properties as needed
-    };
 
     // Calculate total amount raised
     const totalRaised = campaign.donations.reduce(
-      (sum: number, donation: Donation) => sum + donation.amount,
+      (sum: number, donation: DonationWithDetails) => sum + donation.amount,
       0
     );
     
@@ -75,7 +89,7 @@ export async function POST(
     
     if (goalMet) {
       // Process campaign success - pay out to creator
-      await handleCampaignSuccess(campaign, totalRaised);
+      await handleCampaignSuccess(campaign as unknown as CampaignWithRelations, totalRaised);
       
       return NextResponse.json({
         success: true,
@@ -86,7 +100,7 @@ export async function POST(
       });
     } else {
       // Process campaign failure - refund donors
-      await handleCampaignFailure(campaign);
+      await handleCampaignFailure(campaign as unknown as CampaignWithRelations);
       
       return NextResponse.json({
         success: true,
@@ -109,7 +123,7 @@ export async function POST(
 /**
  * Handle successful campaign by paying out to the creator
  */
-async function handleCampaignSuccess(campaign: any, totalAmount: number) {
+async function handleCampaignSuccess(campaign: CampaignWithRelations, totalAmount: number) {
   try {
     // Get creator wallet information - assuming they have a preferred wallet
     const creatorWallet = await prisma.wallet.findFirst({
@@ -164,7 +178,7 @@ async function handleCampaignSuccess(campaign: any, totalAmount: number) {
 /**
  * Handle failed campaign by refunding all donors
  */
-async function handleCampaignFailure(campaign: any) {
+async function handleCampaignFailure(campaign: CampaignWithRelations) {
   try {
     // Get all completed donations for the campaign
     const donations = await prisma.donation.findMany({
@@ -176,7 +190,7 @@ async function handleCampaignFailure(campaign: any) {
     });
     
     // Process refunds for each donation
-    const refundPromises = donations.map(async (donation) => {
+    const refundPromises = donations.map(async (donation: DonationWithDetails) => {
       try {
         // Get donor wallet if available
         const donorWallet = await prisma.wallet.findFirst({

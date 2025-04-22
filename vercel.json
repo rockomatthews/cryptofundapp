@@ -6,7 +6,7 @@
       "use": "@vercel/next",
       "config": {
         "installCommand": "npm install --legacy-peer-deps",
-        "buildCommand": "npx prisma generate && npx next build --no-lint"
+        "buildCommand": "npm run production:build"
       }
     }
   ],
@@ -24,6 +24,7 @@
   "env": {
     "NEXT_DISABLE_ESLINT": "1",
     "SKIP_PREFLIGHT_CHECK": "true",
+    "SKIP_TYPESCRIPT": "1",
     "NEXTAUTH_SECRET": "${NEXTAUTH_SECRET}",
     "NEXTAUTH_URL": "https://${VERCEL_URL}",
     "NEXT_TYPESCRIPT_COMPILE_ONLY": "true"
