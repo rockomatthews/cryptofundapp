@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate && npx next build --no-lint",
+    "build": "next build --no-lint",
     "start": "next start",
     "lint": "next lint",
     "prisma:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
     "solana:build": "cd src/solana && anchor build",
     "solana:deploy": "cd src/solana && anchor deploy --program-keypair crypto-fund-me-keypair.json",
-    "production:build": "SKIP_TYPESCRIPT=1 prisma generate && next build --no-lint"
+    "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "vercel-build": "prisma generate --schema=./prisma/schema.prisma && next build --no-lint"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
