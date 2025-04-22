@@ -27,6 +27,7 @@
     "SKIP_TYPESCRIPT": "1",
     "NEXTAUTH_SECRET": "${NEXTAUTH_SECRET}",
     "NEXTAUTH_URL": "https://www.cryptostarter.app",
-    "NEXT_TYPESCRIPT_COMPILE_ONLY": "true"
+    "NEXT_TYPESCRIPT_COMPILE_ONLY": "true",
+    "NEXT_PUBLIC_VERCEL_URL": "https://www.cryptostarter.app"
   }
 } 
