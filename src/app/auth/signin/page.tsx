@@ -1,12 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { Box, Typography, Button, Paper, Alert, CircularProgress } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function SignInPage() {
+// Loading component for Suspense
+function SignInLoading() {
+  return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
+      <CircularProgress />
+    </Box>
+  );
+}
+
+// Client component that uses useSearchParams
+function SignInContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,11 +28,7 @@ export default function SignInPage() {
   // If already authenticated, redirect to home
   if (status === 'authenticated') {
     router.push('/');
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <SignInLoading />;
   }
 
   const handleGoogleSignIn = async () => {
@@ -131,5 +137,14 @@ export default function SignInPage() {
         </Button>
       </Box>
     </Box>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInLoading />}>
+      <SignInContent />
+    </Suspense>
   );
 } 
