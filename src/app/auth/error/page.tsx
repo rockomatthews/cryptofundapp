@@ -1,119 +1,160 @@
 'use client';
 
-import React, { Suspense } from 'react';
-import { Box, Container, Typography, Paper, Button, Alert, CircularProgress } from '@mui/material';
-import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Paper, Button, Alert, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { useRouter, useSearchParams } from 'next/navigation';
+import ErrorIcon from '@mui/icons-material/Error';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
-// Create an ErrorContent component that uses useSearchParams
-function ErrorContent() {
+export default function AuthErrorPage() {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
-  
-  // Map error codes to user-friendly messages
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const errorParam = searchParams?.get('error');
+    setError(errorParam);
+  }, [searchParams]);
+
   const getErrorMessage = (errorCode: string | null) => {
     switch (errorCode) {
-      case 'AccessDenied':
-        return 'Access denied. You may not have permission to sign in.';
       case 'Configuration':
         return 'There is a problem with the server configuration.';
+      case 'AccessDenied':
+        return 'You do not have permission to sign in.';
       case 'Verification':
-        return 'The verification link may have expired or already been used.';
+        return 'The verification link may have expired or been used already.';
       case 'OAuthSignin':
+        return 'Error in the OAuth signin process. Please try again.';
       case 'OAuthCallback':
+        return 'Error in the OAuth callback process. This may be due to an invalid callback URL.';
       case 'OAuthCreateAccount':
+        return 'Could not create an OAuth account.';
       case 'EmailCreateAccount':
+        return 'Could not create an email account.';
       case 'Callback':
+        return 'Error in the authentication callback.';
       case 'OAuthAccountNotLinked':
+        return 'This email is already associated with another account. Please sign in using the original method.';
       case 'EmailSignin':
+        return 'Error sending the email signin link.';
       case 'CredentialsSignin':
-        return 'There was a problem signing in with the selected provider.';
+        return 'Sign in failed. Check the details you provided are correct.';
+      case 'SessionRequired':
+        return 'Please sign in to access this page.';
       default:
-        return 'An unknown error occurred during authentication.';
+        return 'An unknown error occurred. Please try again.';
     }
   };
 
-  return (
-    <Paper
-      elevation={3}
-      sx={{
-        p: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <Typography component="h1" variant="h4" color="error" gutterBottom>
-        Authentication Error
-      </Typography>
-      
-      <Alert severity="error" sx={{ width: '100%', my: 2 }}>
-        {getErrorMessage(error)}
-      </Alert>
-      
-      <Typography variant="body1" sx={{ mb: 4, textAlign: 'center' }}>
-        You can try signing in again or contact support if the problem persists.
-      </Typography>
-      
-      <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-        <Button 
-          component={Link} 
-          href="/auth/signin" 
-          variant="contained" 
-          color="primary"
-        >
-          Try Again
-        </Button>
-        <Button 
-          component={Link} 
-          href="/" 
-          variant="outlined"
-        >
-          Back to Home
-        </Button>
-      </Box>
-    </Paper>
-  );
-}
+  const getTroubleshootingSteps = (errorCode: string | null) => {
+    const commonSteps = [
+      'Check that cookies are enabled in your browser',
+      'Try using a different browser or incognito mode',
+      'Clear your browser cookies and cache',
+    ];
 
-// Fallback component during suspense
-function LoadingFallback() {
-  return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        width: '100%', 
-        py: 8 
-      }}
-    >
-      <CircularProgress />
-    </Box>
-  );
-}
+    const specificSteps = {
+      'Configuration': [
+        'Contact the site administrator',
+        'Check that all environment variables are properly set'
+      ],
+      'OAuthSignin': [
+        'Wait a few minutes and try again',
+        'Check if you have disabled third-party cookies',
+        'Try a different Google account'
+      ],
+      'OAuthCallback': [
+        'Make sure you are using HTTPS in production',
+        'Check that the callback URL matches your OAuth provider settings'
+      ],
+      'OAuthAccountNotLinked': [
+        'Sign in using the method you originally used'
+      ]
+    };
 
-export default function AuthError() {
+    // Combine common steps with error-specific steps
+    const steps = [
+      ...(specificSteps[errorCode as keyof typeof specificSteps] || []),
+      ...commonSteps
+    ];
+
+    return steps;
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
-      <Container 
-        component="main" 
-        maxWidth="sm" 
+      <Box
         sx={{
+          minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          flexGrow: 1,
-          py: 8
+          alignItems: 'center',
+          p: 2,
+          background: 'linear-gradient(to bottom right, #f3f4f6, #e5e7eb)',
         }}
       >
-        <Suspense fallback={<LoadingFallback />}>
-          <ErrorContent />
-        </Suspense>
-      </Container>
+        <Paper
+          elevation={3}
+          sx={{
+            width: '100%',
+            maxWidth: 600,
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <ErrorIcon color="error" sx={{ fontSize: 60, mb: 2 }} />
+          
+          <Typography variant="h4" component="h1" gutterBottom>
+            Authentication Error
+          </Typography>
+
+          <Alert severity="error" sx={{ width: '100%', mb: 3 }}>
+            {getErrorMessage(error)}
+          </Alert>
+
+          <Typography variant="h6" sx={{ alignSelf: 'flex-start', mt: 2, mb: 1 }}>
+            Troubleshooting Steps:
+          </Typography>
+          
+          <List sx={{ width: '100%', mb: 3 }}>
+            {getTroubleshootingSteps(error).map((step, index) => (
+              <ListItem key={index}>
+                <ListItemIcon>
+                  <CheckCircleIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText primary={step} />
+              </ListItem>
+            ))}
+          </List>
+
+          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => router.push('/auth/signin')}
+            >
+              Back to Sign In
+            </Button>
+            
+            <Button
+              variant="contained"
+              component={Link}
+              href="/auth/debug"
+            >
+              Authentication Debug
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
       <Footer />
     </Box>
   );

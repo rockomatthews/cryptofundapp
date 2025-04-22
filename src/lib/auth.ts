@@ -5,11 +5,36 @@ import prisma from '@/lib/prisma';
 import { JWT } from 'next-auth/jwt';
 import { Adapter } from 'next-auth/adapters';
 
+// Get the URL to use for NextAuth
+// This is critical for OAuth callback URLs to work correctly
+function getBaseUrl() {
+  // Priority order:
+  // 1. NEXTAUTH_URL (explicitly set)
+  // 2. VERCEL_URL (set by Vercel in production)
+  // 3. Fallback to localhost
+  
+  if (process.env.NEXTAUTH_URL) {
+    console.log('Using NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+    return process.env.NEXTAUTH_URL;
+  }
+  
+  // For Vercel deployments
+  if (process.env.VERCEL_URL) {
+    console.log('Using VERCEL_URL:', `https://${process.env.VERCEL_URL}`);
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  // Fallback for local development
+  console.log('Using default localhost URL');
+  return 'http://localhost:3000';
+}
+
 // Log environment variables relevant to NextAuth (excluding secrets)
 console.log('NextAuth Config Environment:', { 
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   NODE_ENV: process.env.NODE_ENV,
   VERCEL_URL: process.env.VERCEL_URL,
+  BASE_URL: getBaseUrl(),
   GOOGLE_CLIENT_ID_SET: !!process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET_SET: !!process.env.GOOGLE_CLIENT_SECRET
 });
@@ -30,6 +55,13 @@ declare module "next-auth" {
 
 // NextAuth configuration with Prisma database adapter
 export const authOptions: NextAuthOptions = {
+  // Use JWT strategy in production as it's more reliable when DB connections 
+  // might be an issue. This should fix the sign-in loop issue.
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
+  },
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     GoogleProvider({
@@ -43,16 +75,20 @@ export const authOptions: NextAuthOptions = {
     signOut: '/auth/signout',
     error: '/auth/error',
   },
-  session: {
-    strategy: 'database',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
-  },
   callbacks: {
+    async jwt({ token, user }) {
+      // If user is provided, add it to the token
+      if (user) {
+        token.userId = user.id;
+        token.email = user.email;
+      }
+      return token;
+    },
     async session({ session, token, user }: { session: Session; token: JWT; user?: User }): Promise<Session> {
       console.log('Session callback called with:', { 
         sessionUserId: session?.user?.id,
         tokenSub: token?.sub,
+        tokenUserId: token?.userId,
         userId: user?.id
       });
       
@@ -67,31 +103,29 @@ export const authOptions: NextAuthOptions = {
         return session;
       }
       
-      // Add the user ID to the session
-      if (user?.id) {
-        // Case 1: We have a user from the database (database session strategy)
+      // Since we're using JWT strategy, use the token for the ID
+      // This ensures we always have user ID even without DB access
+      if (token?.sub) {
+        session.user.id = token.sub;
+      } else if (user?.id) {
         session.user.id = user.id;
-        
-        // Get user's wallet addresses if available
+      }
+      
+      // Try to get wallet info if possible, but don't require it
+      if (session.user.id && session.user.id !== 'temp-' + Date.now()) {
         try {
           const userWallets = await prisma.wallet.findMany({
-            where: { userId: user.id }
+            where: { userId: session.user.id }
           });
           
           if (userWallets && userWallets.length > 0) {
-            // Add the first wallet address to the session for convenience
             session.user.walletAddress = userWallets[0].address;
             session.user.walletType = userWallets[0].walletType;
           }
         } catch (error) {
           console.error("Error fetching user wallets:", error);
+          // Non-fatal error, continue with session
         }
-      } else if (token?.sub) {
-        // Case 2: We have a token with sub (JWT session strategy)
-        session.user.id = token.sub;
-      } else {
-        // Case 3: Fallback if neither user nor token has ID
-        session.user.id = session.user.id || `temp-${Date.now()}`;
       }
       
       return session;
@@ -104,37 +138,38 @@ export const authOptions: NextAuthOptions = {
         hasProfile: !!profile
       });
       
-      // Ensure user is saved to the database, even with JWT strategy
-      if (user.email) {
-        try {
-          // Check if this user already exists
-          const existingUser = await prisma.user.findUnique({
-            where: {
-              email: user.email,
-            },
-          });
-
-          // If user doesn't exist yet, create them
-          if (!existingUser && user.email) {
-            const newUser = await prisma.user.create({
-              data: {
-                email: user.email,
-                name: user.name,
-                image: user.image,
-              },
-            });
-            console.log('Created new user:', user.email, newUser.id);
-          } else if (existingUser) {
-            console.log('Found existing user:', existingUser.email, existingUser.id);
-          }
-          return true;
-        } catch (error) {
-          console.error("Error in signIn callback:", error);
-          return true; // Still allow sign in even if DB operations fail
-        }
+      // Check for missing credentials that would cause sign-in loops
+      if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+        console.error("ERROR: Missing OAuth credentials for Google provider");
+        return false; // Block sign-in and show error page
       }
+      
+      // Always return true for successful sign-in
+      // This avoids silent failures that cause redirect loops
       return true;
     },
+    async redirect({ url, baseUrl }) {
+      // Ensure redirects use the correct base URL
+      // This helps avoid issues with mismatched URLs
+      const calculatedBaseUrl = getBaseUrl();
+      
+      console.log('Redirect info:', { 
+        providedUrl: url, 
+        baseUrl, 
+        calculatedBaseUrl 
+      });
+      
+      // If the URL is relative, use the calculated base URL
+      if (url.startsWith('/')) {
+        return `${calculatedBaseUrl}${url}`;
+      }
+      // If the URL starts with the base URL, allow it
+      else if (url.startsWith(calculatedBaseUrl)) {
+        return url;
+      }
+      // Otherwise redirect to home
+      return calculatedBaseUrl;
+    }
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: true,

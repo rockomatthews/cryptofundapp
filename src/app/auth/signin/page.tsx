@@ -1,126 +1,135 @@
 'use client';
 
-import React from 'react';
-import { Box, Container, Typography, Paper, Button, Divider } from '@mui/material';
-import { useSession, getProviders } from 'next-auth/react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
-import SignInButton from '@/app/components/SignInButton';
-import { ClientSafeProvider } from 'next-auth/react';
+import React, { useState } from 'react';
+import { signIn, useSession } from 'next-auth/react';
+import { Box, Typography, Button, Paper, Alert, CircularProgress } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-type Providers = Record<string, ClientSafeProvider>;
-
-export default function SignIn() {
-  const { data: session } = useSession();
+export default function SignInPage() {
+  const { status } = useSession();
   const router = useRouter();
-  const [providers, setProviders] = React.useState<Providers | null>(null);
-  
-  // Redirect to home if already signed in
-  React.useEffect(() => {
-    if (session) {
-      router.push('/');
-    }
-  }, [session, router]);
-  
-  // Get auth providers
-  React.useEffect(() => {
-    const fetchProviders = async () => {
-      try {
-        // Try the API first
-        const providers = await getProviders();
-        setProviders(providers);
-      } catch {
-        // If the API fails, use hardcoded providers
-        console.log("Using hardcoded providers as fallback");
-        setProviders({
-          google: {
-            id: "google",
-            name: "Google",
-            type: "oauth",
-            signinUrl: "/api/auth/signin/google",
-            callbackUrl: "/api/auth/callback/google"
-          }
-        });
+  const searchParams = useSearchParams();
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [error, setError] = useState<string | null>(
+    searchParams?.get('error') || null
+  );
+
+  // If already authenticated, redirect to home
+  if (status === 'authenticated') {
+    router.push('/');
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const handleGoogleSignIn = async () => {
+    setIsSigningIn(true);
+    setError(null);
+
+    try {
+      // Use the direct provider URL rather than the default flow
+      // This often helps bypass redirect issues
+      const result = await signIn('google', { 
+        redirect: false,
+        callbackUrl: window.location.origin
+      });
+
+      if (result?.error) {
+        setError(result.error);
+        console.error('Sign-in error:', result.error);
+      } else if (result?.url) {
+        // Manual redirect to help with URL consistency
+        window.location.href = result.url;
       }
-    };
-    
-    fetchProviders();
-  }, []);
+    } catch (err) {
+      console.error('Unexpected sign-in error:', err);
+      setError('An unexpected error occurred during sign-in');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Navbar />
-      <Container 
-        component="main" 
-        maxWidth="sm" 
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 2,
+        background: 'linear-gradient(to bottom right, #f3f4f6, #e5e7eb)',
+      }}
+    >
+      <Paper
+        elevation={3}
         sx={{
+          width: '100%',
+          maxWidth: 500,
+          p: 4,
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
-          flexGrow: 1,
-          py: 8
+          alignItems: 'center',
         }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
+        <Typography variant="h4" component="h1" gutterBottom>
+          Sign In
+        </Typography>
+
+        <Typography variant="body1" color="text.secondary" paragraph align="center">
+          Sign in to CryptoFund to create campaigns, donate to projects, and more
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            {error === 'OAuthSignin' || error === 'OAuthCallback'
+              ? 'There was a problem with Google authentication. Please try again.'
+              : error === 'Callback'
+              ? 'Authentication callback failed. Check your settings and try again.'
+              : error === 'OAuthAccountNotLinked'
+              ? 'This email is already associated with a different sign-in method.'
+              : error}
+          </Alert>
+        )}
+
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          size="large"
+          startIcon={<GoogleIcon />}
+          onClick={handleGoogleSignIn}
+          disabled={isSigningIn || status === 'loading'}
+          sx={{ mt: 2, py: 1.5 }}
         >
-          <Typography component="h1" variant="h4" color="primary" gutterBottom>
-            Sign in to CryptoFund
-          </Typography>
-          
-          <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 4 }}>
-            Connect your account to create campaigns or fund projects
-          </Typography>
-          
-          <Box sx={{ width: '100%', mt: 2 }}>
-            {providers && Object.values(providers).map((provider) => (
-              <SignInButton 
-                key={provider.id} 
-                provider={provider} 
-                sx={{ mb: 2, width: '100%' }}
-              />
-            ))}
+          {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+        </Button>
+
+        {/* Debug info in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <Box sx={{ mt: 4, width: '100%' }}>
+            <Typography variant="caption" component="div" color="text.secondary">
+              Debug Info:
+            </Typography>
+            <pre style={{ fontSize: '0.75rem', overflowX: 'auto' }}>
+              {JSON.stringify({ status, error, callbackUrl: window.location.origin }, null, 2)}
+            </pre>
           </Box>
-          
-          <Divider sx={{ width: '100%', my: 3 }} />
-          
-          <Typography variant="body2" color="text.secondary">
-            By signing in, you agree to our{' '}
-            <Link href="/terms" style={{ color: 'inherit', fontWeight: 'bold' }}>
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href="/privacy" style={{ color: 'inherit', fontWeight: 'bold' }}>
-              Privacy Policy
-            </Link>
-          </Typography>
-        </Paper>
-        
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            Don&apos;t have an account?{' '}
-            <Button
-              component={Link}
-              href="/auth/signup"
-              color="primary"
-              variant="text"
-              size="small"
-              sx={{ fontWeight: 'bold' }}
-            >
-              Sign up
-            </Button>
-          </Typography>
-        </Box>
-      </Container>
-      <Footer />
+        )}
+      </Paper>
+
+      <Box sx={{ mt: 4 }}>
+        <Button
+          variant="text"
+          color="primary"
+          onClick={() => router.push('/auth/debug')}
+        >
+          Authentication Debug
+        </Button>
+      </Box>
     </Box>
   );
 } 
