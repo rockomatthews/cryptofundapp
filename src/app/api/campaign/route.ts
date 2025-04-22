@@ -5,6 +5,135 @@ import prisma from '@/lib/prisma';
 import { createPayment } from '@/lib/cryptoprocessing';
 import { PLATFORM_WALLET_ADDRESSES, CAMPAIGN_CREATION_FEE_USD, PAYMENT_SETTINGS } from '@/config/wallet';
 
+/**
+ * GET handler for retrieving campaigns
+ * Supports filtering, sorting, and pagination
+ */
+export async function GET(req: NextRequest) {
+  try {
+    // Get URL parameters
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get('category');
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const order = searchParams.get('order') || 'desc';
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '12');
+    const search = searchParams.get('search');
+    
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    
+    // Build where clause for filtering
+    const where: Record<string, unknown> = {
+      isActive: true,
+    };
+    
+    // Add category filter if provided
+    if (category && category !== 'All Categories') {
+      where.category = category;
+    }
+    
+    // Add search filter if provided
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    
+    // Get total count for pagination
+    const totalCount = await prisma.campaign.count({ where });
+    
+    // Build orderBy object for sorting
+    const orderBy: Record<string, string> = {};
+    // Handle different sort options
+    switch (sortBy) {
+      case 'endDate':
+        orderBy.endDate = order;
+        break;
+      case 'goal':
+        orderBy.goal = order;
+        break;
+      case 'raised':
+        orderBy.raised = order;
+        break;
+      case 'mostFunded':
+        // Calculate percentage funded and sort by that
+        orderBy.raised = order;
+        break;
+      default:
+        orderBy.createdAt = order;
+    }
+    
+    // Fetch campaigns with filtering, sorting, and pagination
+    const campaigns = await prisma.campaign.findMany({
+      where,
+      orderBy,
+      skip,
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          }
+        },
+        _count: {
+          select: {
+            donations: true
+          }
+        }
+      }
+    });
+    
+    // Calculate days left for each campaign
+    const campaignsWithDaysLeft = campaigns.map(campaign => {
+      let daysLeft = 0;
+      if (campaign.endDate) {
+        const endDate = new Date(campaign.endDate);
+        const today = new Date();
+        const diffTime = endDate.getTime() - today.getTime();
+        daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        daysLeft = daysLeft < 0 ? 0 : daysLeft;
+      }
+      
+      // Calculate percentage funded
+      const percentFunded = campaign.goal > 0 
+        ? Math.round((campaign.raised / campaign.goal) * 100) 
+        : 0;
+      
+      // Use the user's name or a default creator name
+      const creatorName = campaign.user?.name || 'Anonymous';
+      
+      return {
+        ...campaign,
+        daysLeft,
+        percentFunded,
+        creatorName,
+        donationCount: campaign._count.donations
+      };
+    });
+    
+    // Return campaigns with pagination info
+    return NextResponse.json({
+      campaigns: campaignsWithDaysLeft,
+      pagination: {
+        total: totalCount,
+        page,
+        limit,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching campaigns:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch campaigns', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Get the current user session
