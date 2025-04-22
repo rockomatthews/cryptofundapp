@@ -5,6 +5,11 @@ export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const path = request.nextUrl.pathname;
 
+  // Skip auth routes completely to avoid interference with NextAuth
+  if (path.startsWith('/api/auth/')) {
+    return NextResponse.next();
+  }
+
   // Only apply CORS middleware to API routes
   if (path.startsWith('/api/')) {
     // Get the response
@@ -30,16 +35,12 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Only match API routes and exclude auth api routes 
-// (NextAuth has its own CORS handling)
+// Configure middleware to exclude auth routes
 export const config = {
   matcher: [
-    {
-      source: '/api/:path*',
-      missing: [
-        { type: 'header', key: 'next-router-prefetch' },
-        { type: 'header', key: 'purpose', value: 'prefetch' },
-      ],
-    },
+    // Include all API routes except auth routes
+    '/api/:path*',
+    // Exclude auth routes explicitly
+    '/((?!api/auth).*)',
   ],
 }; 
