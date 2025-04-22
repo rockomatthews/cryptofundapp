@@ -116,7 +116,7 @@ export const authOptions: NextAuthOptions = {
       // Ensure the user object exists in the session
       if (!session.user) {
         session.user = {
-          id: 'temp-' + Date.now(),
+          id: 'temp-guest',
           name: 'Guest',
           email: null,
           image: null
@@ -133,7 +133,7 @@ export const authOptions: NextAuthOptions = {
       }
       
       // Try to get wallet info if possible, but don't require it
-      if (session.user.id && session.user.id !== 'temp-' + Date.now()) {
+      if (session.user.id && session.user.id !== 'temp-guest') {
         try {
           const userWallets = await prisma.wallet.findMany({
             where: { userId: session.user.id }
