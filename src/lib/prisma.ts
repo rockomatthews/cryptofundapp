@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma';
 
 // PrismaClient is attached to the `global` object in development to prevent
 // exhausting your database connection limit.
@@ -12,8 +12,8 @@ declare global {
 // This ensures the Prisma Client is only instantiated once
 let prisma: PrismaClient;
 
+// Only initialize Prisma on the server side
 if (typeof window === 'undefined') {
-  // server-side only
   if (process.env.NODE_ENV === 'production') {
     prisma = new PrismaClient();
   } else {
@@ -26,9 +26,8 @@ if (typeof window === 'undefined') {
     prisma = global.prisma;
   }
 } else {
-  // Prevent instantiation on the client side
-  // @ts-ignore - This is intentional since we want to prevent client-side instantiation
-  prisma = {};
+  // Return an empty object on client-side
+  prisma = {} as PrismaClient;
 }
 
 export default prisma; 
