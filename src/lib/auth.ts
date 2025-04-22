@@ -58,6 +58,18 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   // Use JWT strategy in production as it's more reliable when DB connections 
   // might be an issue. This should fix the sign-in loop issue.
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: true,
+        domain: ".cryptostarter.app" // Note the leading dot to include subdomains
+      }
+    }
+  },
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
