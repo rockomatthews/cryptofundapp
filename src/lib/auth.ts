@@ -5,6 +5,15 @@ import prisma from '@/lib/prisma';
 import { JWT } from 'next-auth/jwt';
 import { Adapter } from 'next-auth/adapters';
 
+// Log environment variables relevant to NextAuth (excluding secrets)
+console.log('NextAuth Config Environment:', { 
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  NODE_ENV: process.env.NODE_ENV,
+  VERCEL_URL: process.env.VERCEL_URL,
+  GOOGLE_CLIENT_ID_SET: !!process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET_SET: !!process.env.GOOGLE_CLIENT_SECRET
+});
+
 // Extend the built-in session and JWT types
 declare module "next-auth" {
   interface Session {
@@ -41,6 +50,12 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token, user }: { session: Session; token: JWT; user?: User }): Promise<Session> {
+      console.log('Session callback called with:', { 
+        sessionUserId: session?.user?.id,
+        tokenSub: token?.sub,
+        userId: user?.id
+      });
+      
       // Ensure the user object exists in the session
       if (!session.user) {
         session.user = {
@@ -81,8 +96,14 @@ export const authOptions: NextAuthOptions = {
       
       return session;
     },
-    async signIn({ user }) {
-      console.log("Sign-in callback called with user:", JSON.stringify(user));
+    async signIn({ user, account, profile }) {
+      console.log("Sign-in callback called with:", { 
+        user: user?.email,
+        provider: account?.provider,
+        userId: user?.id, 
+        hasProfile: !!profile
+      });
+      
       // Ensure user is saved to the database, even with JWT strategy
       if (user.email) {
         try {
