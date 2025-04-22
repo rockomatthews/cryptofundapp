@@ -15,7 +15,7 @@ export async function GET() {
   
   // Calculate effective URL
   const effectiveUrl = process.env.NEXTAUTH_URL || 
-                      (process.env.NODE_ENV === 'production' ? 'https://cryptostarter.app' : 'http://localhost:3000');
+                      (process.env.NODE_ENV === 'production' ? 'https://www.cryptostarter.app' : 'http://localhost:3000');
   
   // Return sanitized environment info
   return NextResponse.json({
@@ -52,7 +52,7 @@ export async function GET() {
       
       // Computed values
       EFFECTIVE_URL: effectiveUrl,
-      PRODUCTION_DOMAIN: 'https://cryptostarter.app'
+      PRODUCTION_DOMAIN: 'https://www.cryptostarter.app'
     }
   });
 } 

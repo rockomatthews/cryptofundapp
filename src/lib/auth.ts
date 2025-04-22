@@ -10,7 +10,7 @@ import { Adapter } from 'next-auth/adapters';
 function getBaseUrl() {
   // Priority order:
   // 1. NEXTAUTH_URL (explicitly set)
-  // 2. Production domain (cryptostarter.app)
+  // 2. Production domains (support both www and non-www)
   // 3. Fallback to localhost
   
   if (process.env.NEXTAUTH_URL) {
@@ -18,9 +18,10 @@ function getBaseUrl() {
     return process.env.NEXTAUTH_URL;
   }
   
-  // For production deployments
+  // For production deployments - support both with and without www
   if (process.env.NODE_ENV === 'production') {
-    const productionUrl = 'https://cryptostarter.app';
+    // Default to www version as that's what Google seems to prefer
+    const productionUrl = 'https://www.cryptostarter.app';
     console.log('Using production URL:', productionUrl);
     return productionUrl;
   }
@@ -68,6 +69,14 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       allowDangerousEmailAccountLinking: true,
+      // Explicitly set the callback URL to match what Google expects
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   pages: {
@@ -159,12 +168,16 @@ export const authOptions: NextAuthOptions = {
         calculatedBaseUrl 
       });
       
+      // Handle both www and non-www variations
+      const isWwwUrl = url.includes('www.cryptostarter.app');
+      const isNonWwwUrl = url.includes('cryptostarter.app') && !url.includes('www.');
+      
       // If the URL is relative, use the calculated base URL
       if (url.startsWith('/')) {
         return `${calculatedBaseUrl}${url}`;
       }
-      // If the URL starts with the base URL, allow it
-      else if (url.startsWith(calculatedBaseUrl)) {
+      // If the URL is on our domain (either www or non-www), allow it
+      else if (isWwwUrl || isNonWwwUrl) {
         return url;
       }
       // Otherwise redirect to home
