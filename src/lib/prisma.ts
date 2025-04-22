@@ -1,43 +1,34 @@
 import { PrismaClient } from '@prisma/client';
 
 // PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit during hot reloads.
-// See https://pris.ly/d/help/next-js-best-practices
+// exhausting your database connection limit.
+// Learn more: https://pris.ly/d/help/next-js-best-practices
 
-// Add custom methods to PrismaClient if needed
-type PrismaClientWithExtensions = PrismaClient;
-
-// Declare global to properly handle hot reloads
 declare global {
-  // eslint-disable-next-line no-var, no-unused-vars
-  var prisma: PrismaClientWithExtensions | undefined;
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
 }
 
-// To prevent multiple instances of Prisma Client in development environment
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-
-// Check if we should try to initialize the Prisma client or use a mock version
+// This ensures the Prisma Client is only instantiated once
 let prisma: PrismaClient;
 
-try {
+if (typeof window === 'undefined') {
+  // server-side only
   if (process.env.NODE_ENV === 'production') {
     prisma = new PrismaClient();
   } else {
-    // In development, use a global variable to avoid multiple instances
-    if (!globalForPrisma.prisma) {
-      globalForPrisma.prisma = new PrismaClient();
+    // In development, use global to avoid multiple instances
+    if (!global.prisma) {
+      global.prisma = new PrismaClient({
+        log: ['query', 'error', 'warn'],
+      });
     }
-    prisma = globalForPrisma.prisma;
+    prisma = global.prisma;
   }
-} catch (error) {
-  console.error('Failed to initialize Prisma client:', error);
-  // Provide a fallback mock Prisma client for builds where Prisma isn't fully initialized
-  // This helps prevent builds from failing while still showing runtime errors
-  prisma = {
-    $connect: () => Promise.resolve(),
-    $disconnect: () => Promise.resolve(),
-    // Add other necessary methods as needed for build
-  } as unknown as PrismaClient;
+} else {
+  // Prevent instantiation on the client side
+  // @ts-ignore - This is intentional since we want to prevent client-side instantiation
+  prisma = {};
 }
 
 export default prisma; 
