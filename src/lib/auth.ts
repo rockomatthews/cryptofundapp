@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         secure: true,
-        domain: ".cryptostarter.app" // Note the leading dot to include subdomains
+        // domain: ".cryptostarter.app" // Let the browser infer the domain
       }
     }
   },
