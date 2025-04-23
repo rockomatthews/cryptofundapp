@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth from 'next-auth/next';
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
@@ -76,7 +76,6 @@ const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
+// Create and export the API route handler
 const handler = NextAuth(authOptions);
-
-// Export handler functions for Next.js API routes
 export { handler as GET, handler as POST }; 
