@@ -89,28 +89,58 @@ const handler = NextAuth(authOptions);
 
 // Custom GET handler to ensure proper headers
 export async function GET(req) {
-  console.log("[NextAuth] Processing GET request to:", req.url);
-  const response = await handler(req);
-  
-  // Add cache control headers to prevent caching issues
-  if (response && 'headers' in response) {
-    response.headers.set('Cache-Control', 'no-store, max-age=0');
-    response.headers.set('Pragma', 'no-cache');
+  try {
+    console.log("[NextAuth] Processing GET request to:", req.url);
+    const response = await handler(req);
+    
+    // Add cache control headers to prevent caching issues
+    if (response && 'headers' in response) {
+      response.headers.set('Cache-Control', 'no-store, max-age=0');
+      response.headers.set('Pragma', 'no-cache');
+    }
+    
+    return response;
+  } catch (error) {
+    console.error("[NextAuth] Error processing GET request:", error);
+    // Return a structured error response instead of throwing
+    return new Response(
+      JSON.stringify({ error: "Internal authentication error" }),
+      { 
+        status: 200, // Return 200 to avoid client-side errors
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, max-age=0'
+        }
+      }
+    );
   }
-  
-  return response;
 }
 
 // Custom POST handler to ensure proper headers
 export async function POST(req) {
-  console.log("[NextAuth] Processing POST request to:", req.url);
-  const response = await handler(req);
-  
-  // Add cache control headers to prevent caching issues
-  if (response && 'headers' in response) {
-    response.headers.set('Cache-Control', 'no-store, max-age=0');
-    response.headers.set('Pragma', 'no-cache');
+  try {
+    console.log("[NextAuth] Processing POST request to:", req.url);
+    const response = await handler(req);
+    
+    // Add cache control headers to prevent caching issues
+    if (response && 'headers' in response) {
+      response.headers.set('Cache-Control', 'no-store, max-age=0');
+      response.headers.set('Pragma', 'no-cache');
+    }
+    
+    return response;
+  } catch (error) {
+    console.error("[NextAuth] Error processing POST request:", error);
+    // Return a structured error response instead of throwing
+    return new Response(
+      JSON.stringify({ error: "Internal authentication error" }),
+      { 
+        status: 200, // Return 200 to avoid client-side errors
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, max-age=0'
+        }
+      }
+    );
   }
-  
-  return response;
 } 

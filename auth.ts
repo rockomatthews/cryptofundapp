@@ -3,6 +3,28 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 
+/**
+ * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
+ * object and keep type safety.
+ *
+ * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
+ */
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    }
+  }
+}
+
+/**
+ * NextAuth.js configuration options
+ *
+ * @see https://next-auth.js.org/configuration/options
+ */
 const authConfig = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -19,21 +41,22 @@ const authConfig = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
-      if (session?.user) {
+    session({ session, token }) {
+      if (session?.user && token?.sub) {
         session.user.id = token.sub;
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      // Handles relative URLs
+    redirect({ url, baseUrl }) {
+      // Handle relative URLs
       if (url.startsWith("/")) {
         return `${baseUrl}${url}`;
       }
-      // Same-origin URLs
+      // Allow same-origin URLs
       else if (new URL(url).origin === baseUrl) {
         return url;
       }
+      // Default to base URL
       return baseUrl;
     },
   },
@@ -50,4 +73,7 @@ const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
+/**
+ * Export NextAuth handlers and helpers
+ */
 export const { auth, signIn, signOut } = NextAuth(authConfig); 
