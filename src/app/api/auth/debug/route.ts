@@ -1,6 +1,33 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "@/lib/prisma";
+import GoogleProvider from "next-auth/providers/google";
+
+// Define authOptions locally to match the NextAuth configuration
+const authOptions = {
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: 'jwt' as const,
+  },
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
+    }),
+  ],
+  pages: {
+    signIn: "/auth/signin",
+    signOut: "/auth/signout",
+    error: "/auth/error",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+};
 
 /**
  * API route that provides debug information for authentication
