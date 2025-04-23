@@ -16,19 +16,20 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { data: session, status } = useSession();
+  const { session, status, isAuthenticated } = useAuth();
   
   // Debug session state
   useEffect(() => {
     console.log('Navbar - Session Status:', status);
     console.log('Navbar - Session Data:', session);
-  }, [session, status]);
+    console.log('Navbar - Is Authenticated:', isAuthenticated);
+  }, [session, status, isAuthenticated]);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -37,9 +38,6 @@ const Navbar = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
-  // Check that we're authenticated AND have a valid user object
-  const isAuthenticated = status === 'authenticated' && !!session?.user;
 
   return (
     <AppBar position="static" color="default" elevation={1}>

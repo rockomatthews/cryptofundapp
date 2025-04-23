@@ -2,18 +2,19 @@
 
 import React, { useEffect } from 'react';
 import { Box, Container, Typography, Paper, Button, Divider, CircularProgress, Alert } from '@mui/material';
-import { useSession, getProviders } from 'next-auth/react';
+import { getProviders } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import SignInButton from '@/app/components/SignInButton';
 import { ClientSafeProvider } from 'next-auth/react';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 type Providers = Record<string, ClientSafeProvider>;
 
 export default function SignIn() {
-  const { data: session, status } = useSession();
+  const { session, status, isAuthenticated } = useAuth();
   const router = useRouter();
   const [providers, setProviders] = React.useState<Providers | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -23,15 +24,16 @@ export default function SignIn() {
   useEffect(() => {
     console.log('SignIn - Session Status:', status);
     console.log('SignIn - Session Data:', session);
-  }, [session, status]);
+    console.log('SignIn - Is Authenticated:', isAuthenticated);
+  }, [session, status, isAuthenticated]);
   
   // Redirect to home if already signed in
   React.useEffect(() => {
-    if (status === 'authenticated' && !!session?.user) {
+    if (isAuthenticated) {
       console.log('User is authenticated with valid user data, redirecting to home...');
       router.push('/');
     }
-  }, [status, session, router]);
+  }, [isAuthenticated, router]);
   
   // Get auth providers
   React.useEffect(() => {
