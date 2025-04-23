@@ -16,11 +16,13 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useSession } from 'next-auth/react';
 
 const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { data: session } = useSession();
   
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -78,6 +80,11 @@ const Navbar = () => {
                 <MenuItem onClick={handleClose} component={Link} href="/">Home</MenuItem>
                 <MenuItem onClick={handleClose} component={Link} href="/explore">Explore</MenuItem>
                 <MenuItem onClick={handleClose} component={Link} href="/create">Create Campaign</MenuItem>
+                {!session && (
+                  <MenuItem onClick={handleClose} component={Link} href="/auth/signin">
+                    Log In
+                  </MenuItem>
+                )}
               </Menu>
             </>
           ) : (
@@ -91,6 +98,16 @@ const Navbar = () => {
               <Button color="inherit" component={Link} href="/create">
                 Create Campaign
               </Button>
+              {!session && (
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  component={Link} 
+                  href="/auth/signin"
+                >
+                  Log In
+                </Button>
+              )}
             </Box>
           )}
         </Toolbar>
