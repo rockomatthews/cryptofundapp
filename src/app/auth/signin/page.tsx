@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Container, Typography, Paper, Button, Divider } from '@mui/material';
+import { Box, Container, Typography, Paper, Button, Divider, CircularProgress, Alert } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -17,6 +17,8 @@ export default function SignIn() {
   const { data: session } = useSession();
   const router = useRouter();
   const [providers, setProviders] = React.useState<Providers | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<string | null>(null);
   
   // Redirect to home if already signed in
   React.useEffect(() => {
@@ -28,8 +30,18 @@ export default function SignIn() {
   // Get auth providers
   React.useEffect(() => {
     const fetchProviders = async () => {
-      const providers = await getProviders();
-      setProviders(providers);
+      try {
+        setLoading(true);
+        const fetchedProviders = await getProviders();
+        console.log("Fetched auth providers:", fetchedProviders);
+        setProviders(fetchedProviders);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching auth providers:", err);
+        setError("Failed to load sign-in options. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
     };
     
     fetchProviders();
@@ -67,13 +79,27 @@ export default function SignIn() {
           </Typography>
           
           <Box sx={{ width: '100%', mt: 2 }}>
-            {providers && Object.values(providers).map((provider) => (
-              <SignInButton 
-                key={provider.id} 
-                provider={provider} 
-                sx={{ mb: 2, width: '100%' }}
-              />
-            ))}
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : error ? (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                {error}
+              </Alert>
+            ) : providers && Object.keys(providers).length > 0 ? (
+              Object.values(providers).map((provider) => (
+                <SignInButton 
+                  key={provider.id} 
+                  provider={provider} 
+                  sx={{ mb: 2, width: '100%' }}
+                />
+              ))
+            ) : (
+              <Alert severity="warning" sx={{ mb: 3 }}>
+                No sign-in providers available. Please check your configuration.
+              </Alert>
+            )}
           </Box>
           
           <Divider sx={{ width: '100%', my: 3 }} />

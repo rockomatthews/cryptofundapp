@@ -75,20 +75,24 @@ const authOptions = {
     },
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
       // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url
-      return baseUrl
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-// Custom handler to wrap NextAuth and add custom headers
-export async function GET(req: Request) {
-  const response = await NextAuth(authOptions)(req);
+// Create and export the API route handler
+const handler = NextAuth(authOptions);
+
+// Custom GET handler to ensure proper headers
+export async function GET(req) {
+  console.log("[NextAuth] Processing GET request to:", req.url);
+  const response = await handler(req);
   
-  // Add cache control and other headers to improve HTTP/2 handling
+  // Add cache control headers to prevent caching issues
   if (response && 'headers' in response) {
     response.headers.set('Cache-Control', 'no-store, max-age=0');
     response.headers.set('Pragma', 'no-cache');
@@ -97,10 +101,12 @@ export async function GET(req: Request) {
   return response;
 }
 
-export async function POST(req: Request) {
-  const response = await NextAuth(authOptions)(req);
+// Custom POST handler to ensure proper headers
+export async function POST(req) {
+  console.log("[NextAuth] Processing POST request to:", req.url);
+  const response = await handler(req);
   
-  // Add cache control and other headers to improve HTTP/2 handling
+  // Add cache control headers to prevent caching issues
   if (response && 'headers' in response) {
     response.headers.set('Cache-Control', 'no-store, max-age=0');
     response.headers.set('Pragma', 'no-cache');

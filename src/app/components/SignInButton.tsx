@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, ButtonProps, SvgIcon } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, ButtonProps, SvgIcon, CircularProgress } from '@mui/material';
 import { ClientSafeProvider, signIn } from 'next-auth/react';
 
 interface ProviderIconProps {
@@ -38,19 +38,47 @@ interface SignInButtonProps extends ButtonProps {
 
 export default function SignInButton({ provider, ...props }: SignInButtonProps) {
   const { id, name } = provider;
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleSignIn = () => {
-    signIn(id, { callbackUrl: '/' });
+  const handleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      console.log(`Attempting to sign in with ${id} provider`);
+      
+      // Get the current URL to determine the callback
+      const origin = window.location.origin;
+      const callbackUrl = new URL('/dashboard', origin).toString();
+      
+      await signIn(id, { 
+        callbackUrl,
+        redirect: true
+      });
+      
+      // Note: The following code will only execute if redirect: false
+      // When using redirect: true (default), the page will redirect before this point
+      console.log(`Sign in with ${id} successful, redirecting...`);
+    } catch (error) {
+      console.error(`Error signing in with ${id}:`, error);
+      setIsLoading(false);
+    }
   };
   
   return (
     <Button
       variant="outlined"
       onClick={handleSignIn}
-      startIcon={<ProviderIcon providerId={id} />}
+      startIcon={!isLoading && <ProviderIcon providerId={id} />}
+      disabled={isLoading}
       {...props}
     >
-      Continue with {name}
+      {isLoading ? (
+        <>
+          <CircularProgress size={24} sx={{ mr: 1 }} />
+          Connecting...
+        </>
+      ) : (
+        `Continue with ${name}`
+      )}
     </Button>
   );
 } 
