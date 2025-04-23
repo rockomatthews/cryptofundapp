@@ -45,18 +45,17 @@ export default function SignInButton({ provider, ...props }: SignInButtonProps) 
       setIsLoading(true);
       console.log(`Attempting to sign in with ${id} provider`);
       
-      // Get the current URL for callback
-      const origin = window.location.origin;
-      const callbackUrl = `${origin}/`;
+      // Directly sign in with Google - use minimal options for simplicity
+      // The core issue might be with the callback handling, so let's simplify
+      if (id === 'google') {
+        // Using the most direct approach
+        window.location.href = `/api/auth/signin/google?callbackUrl=${encodeURIComponent('/')}`;
+        return; // Don't continue executing code
+      }
       
-      // Use signIn from next-auth/react (not the exported signIn from auth.ts)
-      await signIn(id, { 
-        callbackUrl,
-        redirect: true 
-      });
+      // For other providers, use the default approach
+      await signIn(id, { redirect: true });
       
-      // Note: With redirect: true, the code below won't execute
-      console.log(`Sign in with ${id} initiated, redirecting...`);
     } catch (error) {
       console.error(`Error signing in with ${id}:`, error);
       setIsLoading(false);
