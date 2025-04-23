@@ -15,45 +15,58 @@ function SignInLoading() {
   );
 }
 
+// Map of error codes to user-friendly messages
+const errorMessages: Record<string, string> = {
+  'OAuthSignin': 'Error starting the Google sign-in process. Please try again.',
+  'OAuthCallback': 'Error completing the Google sign-in process. Please try again.',
+  'OAuthAccountNotLinked': 'This email is already associated with a different sign-in method.',
+  'Callback': 'Authentication callback failed. Please try again.',
+  'OAuthCreateAccount': 'Could not create a user account. Please try again.',
+  'EmailCreateAccount': 'Could not create a user account. Please try again.',
+  'Verification': 'The verification link has expired or has already been used.',
+  'Default': 'An unexpected error occurred. Please try again.'
+};
+
 // Client component that uses useSearchParams
 function SignInContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSigningIn, setIsSigningIn] = useState(false);
+  
+  // Extract error from URL and get user-friendly message
+  const errorCode = searchParams?.get('error') || null;
   const [error, setError] = useState<string | null>(
-    searchParams?.get('error') || null
+    errorCode ? (errorMessages[errorCode] || errorMessages.Default) : null
   );
 
-  // If already authenticated, redirect to home
+  // Get the callbackUrl from the URL or default to home
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
+  
+  // If already authenticated, redirect to callback URL
   if (status === 'authenticated') {
-    router.push('/');
+    router.push(callbackUrl);
     return <SignInLoading />;
   }
 
   const handleGoogleSignIn = async () => {
+    if (isSigningIn) return; // Prevent multiple clicks
+    
     setIsSigningIn(true);
     setError(null);
 
     try {
-      // Use the direct provider URL rather than the default flow
-      // This often helps bypass redirect issues
-      const result = await signIn('google', { 
-        redirect: false,
-        callbackUrl: window.location.origin
+      // Use the built-in NextAuth flow for more reliable auth
+      await signIn('google', { 
+        callbackUrl: callbackUrl,
+        redirect: true
       });
-
-      if (result?.error) {
-        setError(result.error);
-        console.error('Sign-in error:', result.error);
-      } else if (result?.url) {
-        // Manual redirect to help with URL consistency
-        window.location.href = result.url;
-      }
+      
+      // The above should redirect, but in case it doesn't:
+      setIsSigningIn(false);
     } catch (err) {
       console.error('Unexpected sign-in error:', err);
-      setError('An unexpected error occurred during sign-in');
-    } finally {
+      setError('An unexpected error occurred. Please try again.');
       setIsSigningIn(false);
     }
   };
@@ -91,13 +104,7 @@ function SignInContent() {
 
         {error && (
           <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
-            {error === 'OAuthSignin' || error === 'OAuthCallback'
-              ? 'There was a problem with Google authentication. Please try again.'
-              : error === 'Callback'
-              ? 'Authentication callback failed. Check your settings and try again.'
-              : error === 'OAuthAccountNotLinked'
-              ? 'This email is already associated with a different sign-in method.'
-              : error}
+            {error}
           </Alert>
         )}
 
@@ -121,7 +128,11 @@ function SignInContent() {
               Debug Info:
             </Typography>
             <pre style={{ fontSize: '0.75rem', overflowX: 'auto' }}>
-              {JSON.stringify({ status, error, callbackUrl: window.location.origin }, null, 2)}
+              {JSON.stringify({ 
+                status, 
+                error: errorCode, 
+                callbackUrl
+              }, null, 2)}
             </pre>
           </Box>
         )}

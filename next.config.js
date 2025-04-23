@@ -13,7 +13,12 @@ const nextConfig = {
     return config;
   },
   // Exclude specific packages from the server bundle to avoid issues
-  serverExternalPackages: ["@prisma/client"]
+  serverExternalPackages: ["@prisma/client"],
+  // Use the NEXTAUTH_URL for public domains to ensure consistency
+  env: {
+    NEXT_PUBLIC_VERCEL_URL: process.env.NEXTAUTH_URL || "https://www.cryptostarter.app",
+    NEXT_PUBLIC_SITE_URL: process.env.NEXTAUTH_URL || "https://www.cryptostarter.app"
+  }
 }
 
 module.exports = nextConfig; 

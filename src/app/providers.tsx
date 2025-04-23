@@ -14,7 +14,7 @@ interface ProvidersProps {
 
 export function Providers({ children, session }: ProvidersProps) {
   return (
-    <SessionProvider session={session}>
+    <SessionProvider session={session} refetchInterval={0} refetchOnWindowFocus={false}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}
