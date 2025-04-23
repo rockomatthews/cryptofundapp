@@ -14,6 +14,7 @@ export default function AuthDebugPage() {
   const [cookiesEnabled, setCookiesEnabled] = useState<boolean | null>(null);
   const [thirdPartyCookiesEnabled, setThirdPartyCookiesEnabled] = useState<boolean | null>(null);
   const [localStorageAvailable, setLocalStorageAvailable] = useState<boolean | null>(null);
+  const [isSecureContext, setIsSecureContext] = useState<boolean | null>(null);
   
   useEffect(() => {
     // Get client-side public environment variables
@@ -33,6 +34,14 @@ export default function AuthDebugPage() {
   }, []);
   
   const checkBrowserCapabilities = () => {
+    // This function only runs in the browser via useEffect
+    
+    // Check if we have window access (we're on the client)
+    if (typeof window === 'undefined') return;
+    
+    // Check secure context
+    setIsSecureContext(window.isSecureContext);
+    
     // Check if cookies are enabled
     setCookiesEnabled(navigator.cookieEnabled);
     
@@ -41,7 +50,7 @@ export default function AuthDebugPage() {
       localStorage.setItem('test', 'test');
       localStorage.removeItem('test');
       setLocalStorageAvailable(true);
-    } catch (e) {
+    } catch (err) {
       setLocalStorageAvailable(false);
     }
     
@@ -57,7 +66,7 @@ export default function AuthDebugPage() {
       try {
         const hasAccess = iframe.contentWindow && iframe.contentWindow.document;
         setThirdPartyCookiesEnabled(!!hasAccess);
-      } catch (e) {
+      } catch (err) {
         setThirdPartyCookiesEnabled(false);
       }
       document.body.removeChild(iframe);
@@ -156,8 +165,8 @@ export default function AuthDebugPage() {
             variant="outlined" 
           />
           <Chip 
-            label={`Secure Context: ${window.isSecureContext ? 'Yes' : 'No'}`} 
-            color={window.isSecureContext ? 'success' : 'error'} 
+            label={`Secure Context: ${isSecureContext === null ? 'Checking...' : isSecureContext ? 'Yes' : 'No'}`} 
+            color={isSecureContext ? 'success' : 'error'} 
             variant="outlined" 
           />
         </Box>
