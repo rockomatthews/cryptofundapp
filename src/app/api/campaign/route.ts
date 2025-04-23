@@ -1,38 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google";
 import prisma from '@/lib/prisma';
 import { createPayment } from '@/lib/cryptoprocessing';
 import { PLATFORM_WALLET_ADDRESSES, CAMPAIGN_CREATION_FEE_USD, PAYMENT_SETTINGS } from '@/config/wallet';
-
-// Define authOptions locally to match the NextAuth configuration in [...]nextauth/route.ts
-const authOptions = {
-  adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: 'jwt' as const,
-  },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
-  ],
-  pages: {
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-    error: "/auth/error",
-  },
-  callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub as string;
-      }
-      return session;
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+import { getAuthenticatedUser } from '@/lib/session';
 
 /**
  * GET handler for retrieving campaigns
@@ -165,16 +135,20 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Get the current user session
-    const session = await getServerSession(authOptions);
-
-    // Check if the user is authenticated
-    if (!session || !session.user || !session.user.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Get the authenticated user
+    const user = await getAuthenticatedUser()
+      .catch(() => {
+        // This will throw if not authenticated, which we catch here
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      });
+    
+    // If the authentication check returned a Response object (error), return it
+    if (user instanceof NextResponse) {
+      return user;
     }
 
-    // Get the user ID from the session
-    const userId = session.user.id;
+    // Get the user ID from the authenticated user
+    const userId = user.id;
 
     // Get the request body
     const body = await req.json();

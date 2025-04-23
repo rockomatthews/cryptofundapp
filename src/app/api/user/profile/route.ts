@@ -1,41 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google";
 import prisma from '@/lib/prisma';
-
-// Define authOptions locally to match the NextAuth configuration in [...]nextauth/route.ts
-const authOptions = {
-  adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: 'jwt' as const,
-  },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
-  ],
-  pages: {
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-    error: "/auth/error",
-  },
-  callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub as string;
-      }
-      return session;
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+import { getSession } from '@/lib/session';
 
 export async function GET() {
   try {
     // Get the current user session
-    const session = await getServerSession(authOptions);
+    const session = await getSession();
 
     // Check if the user is authenticated
     if (!session || !session.user) {

@@ -1,7 +1,5 @@
 import NextAuth from 'next-auth/next';
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import prisma from "@/lib/prisma";
-import GoogleProvider from "next-auth/providers/google";
+import { authOptions } from "@/lib/auth";
 
 // Create the handler with enhanced logging
 console.log('[NextAuth] Route handler initializing');
@@ -40,81 +38,7 @@ console.log(`- Client ID exists: ${!!process.env.GOOGLE_CLIENT_ID}`);
 console.log(`- Client Secret exists: ${!!process.env.GOOGLE_CLIENT_SECRET}`);
 console.log(`- Callback URL will be: ${baseUrl}/api/auth/callback/google`);
 
-// Local authOptions - not exported
-const authOptions = {
-  adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: 'jwt' as const,
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  debug: true, // Enable debug mode for more detailed logs
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "select_account",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
-    }),
-  ],
-  pages: {
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-    error: "/auth/error",
-  },
-  callbacks: {
-    async session({ session, token }) {
-      console.log('[NextAuth] Session callback:', { 
-        sessionExists: !!session, 
-        hasUser: !!session?.user,
-        tokenExists: !!token,
-        tokenSub: token?.sub
-      });
-      
-      if (session?.user) {
-        session.user.id = token.sub;
-      }
-      return session;
-    },
-    async redirect({ url, baseUrl }) {
-      // Log redirect information for debugging
-      console.log('[NextAuth] Redirect called:', { url, baseUrl });
-      
-      // Allows relative callback URLs
-      if (url.startsWith("/")) {
-        const redirectUrl = `${baseUrl}${url}`;
-        console.log('[NextAuth] Redirecting to relative URL:', redirectUrl);
-        return redirectUrl;
-      }
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) {
-        console.log('[NextAuth] Redirecting to same origin URL:', url);
-        return url;
-      }
-      
-      console.log('[NextAuth] Redirecting to baseUrl:', baseUrl);
-      return baseUrl;
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  logger: {
-    error(code, metadata) {
-      console.error(`[NextAuth] Error: ${code}`, metadata);
-    },
-    warn(code) {
-      console.warn(`[NextAuth] Warning: ${code}`);
-    },
-    debug(code, metadata) {
-      console.log(`[NextAuth] Debug: ${code}`, metadata);
-    }
-  }
-};
-
-// Create and export the API route handler
+// Create and export the API route handler using the centralized auth options
 const handler = NextAuth(authOptions);
 
 // Custom GET handler to ensure proper headers
