@@ -5,16 +5,14 @@ import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import CssBaseline from '@mui/material/CssBaseline';
-import type { Session } from 'next-auth';
 
 interface ProvidersProps {
   children: React.ReactNode;
-  session?: Session | null;
 }
 
-export function Providers({ children, session }: ProvidersProps) {
+export function Providers({ children }: ProvidersProps) {
   return (
-    <SessionProvider session={session}>
+    <SessionProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}

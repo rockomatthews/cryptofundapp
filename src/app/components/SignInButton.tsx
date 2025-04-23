@@ -45,18 +45,18 @@ export default function SignInButton({ provider, ...props }: SignInButtonProps) 
       setIsLoading(true);
       console.log(`Attempting to sign in with ${id} provider`);
       
-      // Get the current URL to determine the callback
+      // Get the current URL for callback
       const origin = window.location.origin;
-      const callbackUrl = new URL('/dashboard', origin).toString();
+      const callbackUrl = `${origin}/dashboard`;
       
+      // Use signIn from next-auth/react (not the exported signIn from auth.ts)
       await signIn(id, { 
         callbackUrl,
-        redirect: true
+        redirect: true 
       });
       
-      // Note: The following code will only execute if redirect: false
-      // When using redirect: true (default), the page will redirect before this point
-      console.log(`Sign in with ${id} successful, redirecting...`);
+      // Note: With redirect: true, the code below won't execute
+      console.log(`Sign in with ${id} initiated, redirecting...`);
     } catch (error) {
       console.error(`Error signing in with ${id}:`, error);
       setIsLoading(false);

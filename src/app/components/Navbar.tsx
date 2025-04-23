@@ -22,7 +22,7 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -31,6 +31,8 @@ const Navbar = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const isAuthenticated = status === 'authenticated' && !!session;
 
   return (
     <AppBar position="static" color="default" elevation={1}>
@@ -80,7 +82,7 @@ const Navbar = () => {
                 <MenuItem onClick={handleClose} component={Link} href="/">Home</MenuItem>
                 <MenuItem onClick={handleClose} component={Link} href="/explore">Explore</MenuItem>
                 <MenuItem onClick={handleClose} component={Link} href="/create">Create Campaign</MenuItem>
-                {!session && (
+                {!isAuthenticated && (
                   <MenuItem onClick={handleClose} component={Link} href="/auth/signin">
                     Log In
                   </MenuItem>
@@ -98,7 +100,7 @@ const Navbar = () => {
               <Button color="inherit" component={Link} href="/create">
                 Create Campaign
               </Button>
-              {!session && (
+              {!isAuthenticated && (
                 <Button 
                   variant="contained" 
                   color="primary" 
