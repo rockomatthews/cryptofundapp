@@ -45,12 +45,20 @@ const authOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt' as const,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   debug: process.env.NODE_ENV !== "production",
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   pages: {
@@ -64,11 +72,39 @@ const authOptions = {
         session.user.id = token.sub;
       }
       return session;
-    }
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-// Create and export the API route handler
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST }; 
+// Custom handler to wrap NextAuth and add custom headers
+export async function GET(req: Request) {
+  const response = await NextAuth(authOptions)(req);
+  
+  // Add cache control and other headers to improve HTTP/2 handling
+  if (response && 'headers' in response) {
+    response.headers.set('Cache-Control', 'no-store, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+  }
+  
+  return response;
+}
+
+export async function POST(req: Request) {
+  const response = await NextAuth(authOptions)(req);
+  
+  // Add cache control and other headers to improve HTTP/2 handling
+  if (response && 'headers' in response) {
+    response.headers.set('Cache-Control', 'no-store, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+  }
+  
+  return response;
+} 
