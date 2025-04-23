@@ -27,11 +27,11 @@ export default function SignIn() {
   
   // Redirect to home if already signed in
   React.useEffect(() => {
-    if (status === 'authenticated') {
-      console.log('User is authenticated, redirecting to home...');
+    if (status === 'authenticated' && !!session?.user) {
+      console.log('User is authenticated with valid user data, redirecting to home...');
       router.push('/');
     }
-  }, [status, router]);
+  }, [status, session, router]);
   
   // Get auth providers
   React.useEffect(() => {

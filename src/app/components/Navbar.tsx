@@ -38,8 +38,8 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  // Changed to be explicit that we need 'authenticated' status
-  const isAuthenticated = status === 'authenticated';
+  // Check that we're authenticated AND have a valid user object
+  const isAuthenticated = status === 'authenticated' && !!session?.user;
 
   return (
     <AppBar position="static" color="default" elevation={1}>
