@@ -38,9 +38,7 @@ export function middleware(request: NextRequest) {
 // Configure middleware to exclude auth routes
 export const config = {
   matcher: [
-    // Include all API routes except auth routes
-    '/api/:path*',
-    // Exclude auth routes explicitly
-    '/((?!api/auth).*)',
+    // Only include API routes that don't start with /api/auth
+    '/api/:path*((?!auth).)*',
   ],
 }; 

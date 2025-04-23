@@ -1,8 +1,7 @@
-import { type NextAuthOptions, Session } from 'next-auth';
+import { type NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '@/lib/prisma';
-import { Adapter } from 'next-auth/adapters';
 
 // Extend the built-in session and JWT types
 declare module "next-auth" {
@@ -50,58 +49,28 @@ console.log('NextAuth Config Environment:', {
 
 // NextAuth configuration with Prisma database adapter
 export const authOptions: NextAuthOptions = {
-  // Use JWT strategy as it's more resilient if DB connections are unstable
+  // Simple JWT strategy
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   
-  // Enhanced cookie configuration for cross-domain scenarios
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: true
-      }
-    },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: true
-      }
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: true
-      }
-    }
-  },
+  // Use secure defaults for cookies - no explicit configuration
   
-  // Prisma adapter to store user accounts
-  adapter: PrismaAdapter(prisma) as Adapter,
+  // Prisma adapter for database storage
+  adapter: PrismaAdapter(prisma),
   
-  // Configure the Google provider with all required OAuth parameters
+  // Google provider with explicit callback URL
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      allowDangerousEmailAccountLinking: true,
+      // Use direct URL without www to avoid domain mismatch
       authorization: {
+        url: "https://accounts.google.com/o/oauth2/v2/auth",
         params: {
-          prompt: "consent", // Always show consent screen
-          access_type: "offline", // Get refresh token
-          response_type: "code", // Authorization code flow
-          include_granted_scopes: true // Include previously granted scopes
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
         }
       }
     }),
@@ -110,96 +79,31 @@ export const authOptions: NextAuthOptions = {
   // Custom pages
   pages: {
     signIn: '/auth/signin',
-    signOut: '/auth/signout',
     error: '/auth/error',
   },
   
-  // Callbacks with simplified and stable JWT/session logic
+  // Simplify callbacks
   callbacks: {
-    // Add user info to JWT token
+    // Simple JWT callback
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id;
+        token.id = user.id;
       }
       return token;
     },
     
-    // Create consistent session from token
-    async session({ session, token }): Promise<Session> {
-      // Ensure session user exists
-      if (!session.user) {
-        session.user = {
-          id: 'guest',
-          name: 'Guest',
-          email: null,
-          image: null
-        };
-        return session;
+    // Simple session callback
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
       }
-      
-      // Use token sub for user ID
-      if (token?.sub) {
-        session.user.id = token.sub;
-        
-        // Only fetch wallet info for authenticated users
-        try {
-          const userWallets = await prisma.wallet.findMany({
-            where: { userId: token.sub },
-            take: 1
-          });
-          
-          if (userWallets.length > 0) {
-            session.user.walletAddress = userWallets[0].address;
-            session.user.walletType = userWallets[0].walletType;
-          }
-        } catch (error) {
-          // Non-fatal error, continue with session
-          console.error("Error fetching wallet:", error);
-        }
-      }
-      
       return session;
-    },
-    
-    // Validate sign in
-    async signIn({ account, profile }) {
-      // Verify Google credentials are set
-      if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-        console.error("Missing Google OAuth credentials");
-        return false;
-      }
-      
-      // Require a verified email for sign in
-      if (account?.provider === 'google' && profile?.email) {
-        return true;
-      }
-      
-      return true; // Allow sign in
-    },
-    
-    // Handle redirects
-    async redirect({ url }) {
-      // Use calculated base URL from our function
-      const effectiveBaseUrl = getBaseUrl();
-      
-      // Absolute URL that starts with base URL
-      if (url.startsWith(effectiveBaseUrl)) {
-        return url;
-      }
-      
-      // Relative URL
-      if (url.startsWith('/')) {
-        return `${effectiveBaseUrl}${url}`;
-      }
-      
-      // Fallback
-      return effectiveBaseUrl;
     }
   },
   
-  // Use NEXTAUTH_SECRET for JWT signing
+  // Use NEXTAUTH_SECRET for signing
   secret: process.env.NEXTAUTH_SECRET,
   
-  // Enable debug mode for detailed logs
-  debug: process.env.NODE_ENV !== 'production',
+  // Disable debugging in production
+  debug: false,
 }; 

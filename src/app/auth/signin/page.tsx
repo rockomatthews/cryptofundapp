@@ -1,81 +1,24 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
-import { signIn, useSession } from 'next-auth/react';
-import { Box, Typography, Button, Paper, Alert, CircularProgress } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, Button, Paper, Alert } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
-import { useRouter, useSearchParams } from 'next/navigation';
 
-// Loading component for Suspense
-function SignInLoading() {
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
-      <CircularProgress />
-    </Box>
-  );
-}
-
-// Map of error codes to user-friendly messages
-const errorMessages: Record<string, string> = {
-  'OAuthSignin': 'Error starting the Google sign-in process. Please try again.',
-  'OAuthCallback': 'Error completing the Google sign-in process. Please try again.',
-  'OAuthAccountNotLinked': 'This email is already associated with a different sign-in method.',
-  'Callback': 'Authentication callback failed. Please try again.',
-  'OAuthCreateAccount': 'Could not create a user account. Please try again.',
-  'EmailCreateAccount': 'Could not create a user account. Please try again.',
-  'Verification': 'The verification link has expired or has already been used.',
-  'Default': 'An unexpected error occurred. Please try again.'
-};
-
-// Client component that uses useSearchParams
-function SignInContent() {
-  const { status } = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  
-  // Extract error from URL and get user-friendly message
-  const errorCode = searchParams?.get('error') || null;
-  const [error, setError] = useState<string | null>(
-    errorCode ? (errorMessages[errorCode] || errorMessages.Default) : null
-  );
-
-  // Get the callbackUrl from the URL or default to home
-  const callbackUrl = searchParams?.get('callbackUrl') || '/';
-  
-  // If already authenticated, redirect to callback URL
-  if (status === 'authenticated') {
-    router.push(callbackUrl);
-    return <SignInLoading />;
-  }
+export default function SignInPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
-    if (isSigningIn) return; // Prevent multiple clicks
-    
-    setIsSigningIn(true);
+    setIsLoading(true);
     setError(null);
-
+    
     try {
-      // Force using absolute URLs for the callback to avoid path issues
-      const absoluteCallbackUrl = callbackUrl.startsWith('/')
-        ? window.location.origin + callbackUrl
-        : callbackUrl;
-        
-      console.log('Starting Google sign-in with callback:', absoluteCallbackUrl);
-
-      // Use direct redirection mode for more reliable auth flow
-      // The redirects are handled by the server directly
-      await signIn('google', { 
-        callbackUrl: absoluteCallbackUrl,
-        redirect: true
-      });
-      
-      // The above should redirect, but in case it doesn't:
-      setIsSigningIn(false);
-    } catch (err) {
-      console.error('Unexpected sign-in error:', err);
-      setError('An unexpected error occurred. Please try again.');
-      setIsSigningIn(false);
+      // Use the most direct sign-in approach
+      // No redirect parameter lets NextAuth handle the redirect automatically
+      window.location.href = "/api/auth/signin/google";
+    } catch {
+      setError('An unexpected error occurred');
+      setIsLoading(false);
     }
   };
 
@@ -123,47 +66,12 @@ function SignInContent() {
           size="large"
           startIcon={<GoogleIcon />}
           onClick={handleGoogleSignIn}
-          disabled={isSigningIn || status === 'loading'}
+          disabled={isLoading}
           sx={{ mt: 2, py: 1.5 }}
         >
-          {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+          {isLoading ? 'Signing in...' : 'Sign in with Google'}
         </Button>
-
-        {/* Debug info in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <Box sx={{ mt: 4, width: '100%' }}>
-            <Typography variant="caption" component="div" color="text.secondary">
-              Debug Info:
-            </Typography>
-            <pre style={{ fontSize: '0.75rem', overflowX: 'auto' }}>
-              {JSON.stringify({ 
-                status, 
-                error: errorCode, 
-                callbackUrl
-              }, null, 2)}
-            </pre>
-          </Box>
-        )}
       </Paper>
-
-      <Box sx={{ mt: 4 }}>
-        <Button
-          variant="text"
-          color="primary"
-          onClick={() => router.push('/auth/debug')}
-        >
-          Authentication Debug
-        </Button>
-      </Box>
     </Box>
-  );
-}
-
-// Main page component with Suspense boundary
-export default function SignInPage() {
-  return (
-    <Suspense fallback={<SignInLoading />}>
-      <SignInContent />
-    </Suspense>
   );
 } 
