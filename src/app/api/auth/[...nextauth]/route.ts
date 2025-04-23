@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth/next';
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
+import GoogleProvider from "next-auth/providers/google";
 
 // Create the handler with enhanced logging
 console.log('[NextAuth] Route handler initializing');
@@ -46,7 +47,12 @@ const authOptions = {
     strategy: 'jwt' as const,
   },
   debug: process.env.NODE_ENV !== "production",
-  providers: [],
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
   pages: {
     signIn: "/auth/signin",
     signOut: "/auth/signout",
