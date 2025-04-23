@@ -1,31 +1,37 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Container, Typography, Paper, Button, Divider, CircularProgress, Alert } from '@mui/material';
-import { useSession } from 'next-auth/react';
+import { useSession, getProviders } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { getProviders } from 'next-auth/react';
 import SignInButton from '@/app/components/SignInButton';
 import { ClientSafeProvider } from 'next-auth/react';
 
 type Providers = Record<string, ClientSafeProvider>;
 
 export default function SignIn() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [providers, setProviders] = React.useState<Providers | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
   
+  // Debug session state
+  useEffect(() => {
+    console.log('SignIn - Session Status:', status);
+    console.log('SignIn - Session Data:', session);
+  }, [session, status]);
+  
   // Redirect to home if already signed in
   React.useEffect(() => {
-    if (session) {
+    if (status === 'authenticated') {
+      console.log('User is authenticated, redirecting to home...');
       router.push('/');
     }
-  }, [session, router]);
+  }, [status, router]);
   
   // Get auth providers
   React.useEffect(() => {
@@ -34,8 +40,14 @@ export default function SignIn() {
         setLoading(true);
         const fetchedProviders = await getProviders();
         console.log("Fetched auth providers:", fetchedProviders);
-        setProviders(fetchedProviders);
-        setError(null);
+        
+        if (!fetchedProviders) {
+          console.error("No providers returned from getProviders()");
+          setError("No sign-in options available. Please check configuration.");
+        } else {
+          setProviders(fetchedProviders);
+          setError(null);
+        }
       } catch (err) {
         console.error("Error fetching auth providers:", err);
         setError("Failed to load sign-in options. Please try again later.");

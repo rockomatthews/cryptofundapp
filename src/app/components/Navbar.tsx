@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   AppBar, 
   Toolbar, 
@@ -24,6 +24,12 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { data: session, status } = useSession();
   
+  // Debug session state
+  useEffect(() => {
+    console.log('Navbar - Session Status:', status);
+    console.log('Navbar - Session Data:', session);
+  }, [session, status]);
+
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -32,7 +38,8 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  const isAuthenticated = status === 'authenticated' && !!session;
+  // Changed to be explicit that we need 'authenticated' status
+  const isAuthenticated = status === 'authenticated';
 
   return (
     <AppBar position="static" color="default" elevation={1}>
