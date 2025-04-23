@@ -47,7 +47,7 @@ const authOptions = {
     strategy: 'jwt' as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  debug: process.env.NODE_ENV !== "production",
+  debug: true, // Enable debug mode for more detailed logs
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -68,6 +68,13 @@ const authOptions = {
   },
   callbacks: {
     async session({ session, token }) {
+      console.log('[NextAuth] Session callback:', { 
+        sessionExists: !!session, 
+        hasUser: !!session?.user,
+        tokenExists: !!token,
+        tokenSub: token?.sub
+      });
+      
       if (session?.user) {
         session.user.id = token.sub;
       }
@@ -94,6 +101,17 @@ const authOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  logger: {
+    error(code, metadata) {
+      console.error(`[NextAuth] Error: ${code}`, metadata);
+    },
+    warn(code) {
+      console.warn(`[NextAuth] Warning: ${code}`);
+    },
+    debug(code, metadata) {
+      console.log(`[NextAuth] Debug: ${code}`, metadata);
+    }
+  }
 };
 
 // Create and export the API route handler
@@ -114,11 +132,15 @@ export async function GET(req) {
     return response;
   } catch (error) {
     console.error("[NextAuth] Error processing GET request:", error);
-    // Return a structured error response instead of throwing
+    // Return a more detailed error response
     return new Response(
-      JSON.stringify({ error: "Internal authentication error" }),
+      JSON.stringify({ 
+        error: "Internal authentication error", 
+        message: error.message || "Unknown error",
+        stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+      }),
       { 
-        status: 200, // Return 200 to avoid client-side errors
+        status: 500, 
         headers: { 
           'Content-Type': 'application/json',
           'Cache-Control': 'no-store, max-age=0'
@@ -143,11 +165,15 @@ export async function POST(req) {
     return response;
   } catch (error) {
     console.error("[NextAuth] Error processing POST request:", error);
-    // Return a structured error response instead of throwing
+    // Return a more detailed error response
     return new Response(
-      JSON.stringify({ error: "Internal authentication error" }),
+      JSON.stringify({ 
+        error: "Internal authentication error", 
+        message: error.message || "Unknown error",
+        stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+      }),
       { 
-        status: 200, // Return 200 to avoid client-side errors
+        status: 500, 
         headers: { 
           'Content-Type': 'application/json',
           'Cache-Control': 'no-store, max-age=0'
