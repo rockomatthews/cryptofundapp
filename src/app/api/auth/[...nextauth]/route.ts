@@ -1,5 +1,7 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "@/lib/prisma";
 
 // Create the handler with enhanced logging
 console.log('[NextAuth] Route handler initializing');
@@ -38,7 +40,12 @@ console.log(`- Client ID exists: ${!!process.env.GOOGLE_CLIENT_ID}`);
 console.log(`- Client Secret exists: ${!!process.env.GOOGLE_CLIENT_SECRET}`);
 console.log(`- Callback URL will be: ${baseUrl}/api/auth/callback/google`);
 
-export const authOptions = {
+// Local authOptions - not exported
+const authOptions = {
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: 'jwt' as const,
+  },
   debug: process.env.NODE_ENV !== "production",
   providers: [
     GoogleProvider({
@@ -65,7 +72,8 @@ export const authOptions = {
       console.log("[NextAuth] JWT callback", { token, account });
       return token;
     }
-  }
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
