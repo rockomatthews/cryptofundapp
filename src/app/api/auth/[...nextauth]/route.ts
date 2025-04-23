@@ -54,7 +54,7 @@ const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: "consent",
+          prompt: "select_account",
           access_type: "offline",
           response_type: "code"
         }
@@ -74,10 +74,22 @@ const authOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Log redirect information for debugging
+      console.log('[NextAuth] Redirect called:', { url, baseUrl });
+      
       // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (url.startsWith("/")) {
+        const redirectUrl = `${baseUrl}${url}`;
+        console.log('[NextAuth] Redirecting to relative URL:', redirectUrl);
+        return redirectUrl;
+      }
       // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
+      else if (new URL(url).origin === baseUrl) {
+        console.log('[NextAuth] Redirecting to same origin URL:', url);
+        return url;
+      }
+      
+      console.log('[NextAuth] Redirecting to baseUrl:', baseUrl);
       return baseUrl;
     },
   },

@@ -47,7 +47,7 @@ export default function SignInButton({ provider, ...props }: SignInButtonProps) 
       
       // Get the current URL for callback
       const origin = window.location.origin;
-      const callbackUrl = `${origin}/dashboard`;
+      const callbackUrl = `${origin}/`;
       
       // Use signIn from next-auth/react (not the exported signIn from auth.ts)
       await signIn(id, { 
