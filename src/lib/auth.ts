@@ -56,10 +56,28 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   
-  // Default cookie configuration - let the browser handle domain inference
+  // Enhanced cookie configuration for cross-domain scenarios
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: true
+      }
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: true
+      }
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
@@ -82,7 +100,8 @@ export const authOptions: NextAuthOptions = {
         params: {
           prompt: "consent", // Always show consent screen
           access_type: "offline", // Get refresh token
-          response_type: "code" // Authorization code flow
+          response_type: "code", // Authorization code flow
+          include_granted_scopes: true // Include previously granted scopes
         }
       }
     }),

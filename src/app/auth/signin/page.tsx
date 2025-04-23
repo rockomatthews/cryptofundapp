@@ -56,9 +56,17 @@ function SignInContent() {
     setError(null);
 
     try {
-      // Use the built-in NextAuth flow for more reliable auth
+      // Force using absolute URLs for the callback to avoid path issues
+      const absoluteCallbackUrl = callbackUrl.startsWith('/')
+        ? window.location.origin + callbackUrl
+        : callbackUrl;
+        
+      console.log('Starting Google sign-in with callback:', absoluteCallbackUrl);
+
+      // Use direct redirection mode for more reliable auth flow
+      // The redirects are handled by the server directly
       await signIn('google', { 
-        callbackUrl: callbackUrl,
+        callbackUrl: absoluteCallbackUrl,
         redirect: true
       });
       
