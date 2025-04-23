@@ -21,6 +21,14 @@ import CurrencySelector from '@/app/components/CurrencySelector';
 import { SUPPORTED_CURRENCIES, createPaymentAddress } from '@/lib/cryptoprocessing/index';
 import { useRouter } from 'next/navigation';
 
+// Add a type extension for the Session user to include id
+interface ExtendedUser {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 interface DonationFlowProps {
   campaignId: string;
   campaignTitle: string;
@@ -107,7 +115,10 @@ export default function DonationFlow({ campaignId, campaignTitle, targetCurrency
   
   // Generate a payment address using CryptoProcessing API
   const generatePaymentAddress = async () => {
-    if (!session?.user?.id) {
+    // Use type assertion to handle the TypeScript error
+    const user = session?.user as ExtendedUser | undefined;
+    
+    if (!user?.id) {
       setError('You must be signed in to donate');
       return;
     }
@@ -124,7 +135,7 @@ export default function DonationFlow({ campaignId, campaignTitle, targetCurrency
         callbackUrl,
         {
           campaignId,
-          userId: session.user.id
+          userId: user.id
         }
       );
       
